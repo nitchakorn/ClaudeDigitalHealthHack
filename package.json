@@ -6,6 +6,10 @@
   "scripts": {
     "postinstall": "node scripts/py.js setup",
     "setup": "node scripts/py.js setup",
-    "dev": "node scripts/py.js dev"
+    "dev": "node scripts/py.js dev",
+    "test": "node tests/tracker.test.js"
+  },
+  "devDependencies": {
+    "jsdom": "^31.0.1"
   }
 }

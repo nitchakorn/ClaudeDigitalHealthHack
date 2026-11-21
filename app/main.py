@@ -105,6 +105,40 @@ def referral(req: ReferralRequest) -> StreamingResponse:
     return StreamingResponse(events(), media_type="application/x-ndjson")
 
 
+class PatientMessage(BaseModel):
+    text: str
+    facts: str = ""  # the referral status the page is showing; the only thing an automatic answer may use
+
+
+@app.get("/api/tracker/data")
+def tracker_data() -> dict:
+    """The referral tracker's patients: the type 2 diabetes to endocrinology cohort."""
+    key, cfg = "endo", CONDITIONS["endo"]
+    patients = []
+    for p in chart.cohort(key):
+        e = chart.extract(p["id"], key)
+        patients.append({
+            **p,
+            "problems": [name for _, name in e["relevant_problems"]],
+            "meds": sorted(e["active_meds"]),
+            "allergies": e["allergies"],
+            "results": [[r["label"], r["latest"][1], r["latest"][0]] for r in e["results"][:8]],
+        })
+    return {"as_of": chart.today.isoformat(),
+            "condition": {"key": key, "label": cfg["label"], "specialty": cfg["specialty"], "patients": patients}}
+
+
+@app.post("/api/tracker/message")
+def tracker_message(msg: PatientMessage) -> dict:
+    """Routes a patient message: a status answer, or a hand-off to a nurse with no automatic answer."""
+    return llm.route_message(msg.text, msg.facts)
+
+
 @app.get("/")
 def index() -> FileResponse:
     return FileResponse(ROOT / "static" / "index.html")
+
+
+@app.get("/tracker")
+def tracker() -> FileResponse:
+    return FileResponse(ROOT / "static" / "tracker.html")

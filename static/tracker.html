@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Referral Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  /* Tokens follow the team's Referral Note Drafter so the two pages read as one product. */
+  :root {
+    --bg: #eef1f4; --panel: #fbfcfd; --raised: #ffffff; --line: #cdd5dd; --line-soft: #e1e6eb;
+    --fg: #17212b; --muted: #55636f; --accent: #0f5e7a; --accent-fg: #ffffff; --sel: #dcebf1;
+    --ctl: #7d8a97; --warn: #8a5200; --warn-bg: #fbf1e2; --ok: #1d6b45; --ok-bg: #e3f1e9; --bad: #a3262b;
+    --sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+    --r: 6px; --r-sm: 4px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #10161b; --panel: #182129; --raised: #1e2933; --line: #2e3b46; --line-soft: #26323c;
+      --fg: #e3e9ee; --muted: #9aa8b4; --accent: #6cc0dc; --accent-fg: #0b1820; --sel: #213744;
+      --ctl: #738290; --warn: #e0a54a; --warn-bg: #2b2215; --ok: #74c79a; --ok-bg: #16281f; --bad: #f08a8d;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--sans); min-height: 100dvh; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .ico { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .ico.sm { width: 16px; height: 16px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ---- top bar ---- */
+  .bar { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--panel) 92%, transparent);
+         backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  .bar-in { max-width: 1320px; margin: 0 auto; padding: 10px 20px; display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; }
+  .brand { display: flex; flex-direction: column; margin-right: auto; }
+  .brand b { font-size: 17px; letter-spacing: -0.01em; }
+  .brand span { font-size: 12px; color: var(--muted); }
+  .personas { display: flex; gap: 4px; padding: 3px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+  .personas button { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 4px 12px; border: 0; border-radius: 6px;
+                     background: none; cursor: pointer; text-align: left; color: var(--muted); }
+  .personas button span { display: flex; flex-direction: column; line-height: 1.25; }
+  .personas button small { font-size: 11px; }
+  .personas button[aria-pressed="true"] { background: var(--raised); color: var(--fg); box-shadow: 0 1px 2px rgb(0 0 0 / 0.12); }
+  .personas button[aria-pressed="true"] .ico { color: var(--accent); }
+  .badge { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--warn); color: var(--panel);
+           font: 600 11px/18px var(--mono); text-align: center; }
+  .clock { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .clock time { font: 500 13px var(--mono); color: var(--fg); }
+  .demo { border-top: 1px dashed var(--ctl); background: var(--bg); }
+  .demo-in { max-width: 1320px; margin: 0 auto; padding: 6px 20px; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 12px; color: var(--muted); }
+  .demo-in b { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg); }
+  .demo-in .btn { min-height: 44px; padding: 4px 12px; font-size: 13px; }
+  .demo-in select { width: auto; font-size: 13px; }
+  .demo-in time { font: 500 13px var(--mono); color: var(--fg); }
+  .quote { border-left: 3px solid var(--ctl); padding: 6px 10px; font-size: 13px; background: var(--raised); margin: 0; white-space: pre-wrap; }
+  .why { font-size: 13px; color: var(--warn); margin: 0; }
+  h1[tabindex] { outline-offset: 4px; }
+
+  main { max-width: 1320px; margin: 0 auto; padding: 18px 20px 48px; }
+
+  /* ---- shared pieces ---- */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 16px;
+         border-radius: var(--r-sm); border: 1px solid var(--accent); background: var(--accent); color: var(--accent-fg);
+         font-weight: 500; cursor: pointer; transition: filter 150ms ease-out; }
+  .btn:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; color: var(--accent); }
+  .btn.quiet { background: transparent; border-color: var(--line); color: var(--fg); }
+  .btn.warn { background: var(--warn); border-color: var(--warn); color: var(--panel); }
+  .btn:disabled { opacity: 0.45; cursor: default; filter: none; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); min-width: 0; }
+  .ph { margin: 0; display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--line);
+        font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .pb { padding: 16px; }
+  .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+  .muted { color: var(--muted); }
+  .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 2px 9px; border-radius: 999px;
+          border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+  .chip.warn { color: var(--warn); border-color: var(--warn); background: var(--warn-bg); }
+  .chip.ok { color: var(--ok); border-color: var(--ok); background: var(--ok-bg); }
+  .chip.accent { color: var(--accent); border-color: var(--accent); }
+  .ai { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--accent); font-weight: 500; }
+
+  /* Signature: the rubber stamp from paper referral slips, one per view, marks where the referral stands. */
+  .stamp { display: inline-block; font: 600 20px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase;
+           color: var(--accent); border: 2.5px solid currentColor; border-radius: 4px; padding: 8px 12px 7px;
+           transform: rotate(-4deg); box-shadow: inset 0 0 0 2px var(--panel), inset 0 0 0 3.5px currentColor; white-space: nowrap; justify-self: start; align-self: center; }
+  .stamp small { display: block; font-size: 11px; letter-spacing: 0.1em; margin-top: 5px; font-weight: 500; }
+  .stamp.warn { color: var(--warn); } .stamp.ok { color: var(--ok); }
+  @media (prefers-reduced-motion: no-preference) {
+    .stamp.fresh { animation: thunk 260ms cubic-bezier(.2,.9,.3,1.3); }
+    @keyframes thunk { from { transform: rotate(-4deg) scale(1.35); opacity: 0; } to { transform: rotate(-4deg) scale(1); opacity: 1; } }
+  }
+
+  /* Horizontal stepper */
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); }
+  .steps li { position: relative; text-align: center; font-size: 12px; color: var(--muted); padding: 24px 2px 0; line-height: 1.3; }
+  .steps li::before { content: ""; position: absolute; top: 6px; left: 50%; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%;
+                      border: 2px solid var(--ctl); background: var(--panel); z-index: 1; }
+  .steps li::after { content: ""; position: absolute; top: 12px; right: 50%; width: 100%; height: 2px; background: var(--line); }
+  .steps li:first-child::after { display: none; }
+  .steps li.done::before { background: var(--ok); border-color: var(--ok); }
+  .steps li.done::after, .steps li.now::after { background: var(--ok); }
+  .steps li.now { color: var(--fg); font-weight: 600; }
+  .steps li.now::before { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 4px var(--sel); }
+  .steps li.stall::before { background: var(--warn); border-color: var(--warn); box-shadow: 0 0 0 4px var(--warn-bg); }
+  .steps li small { display: block; font: 400 11px var(--mono); margin-top: 2px; }
+
+  .log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .log li { display: grid; grid-template-columns: 64px 104px minmax(0, 1fr); gap: 10px; padding: 7px 0; border-top: 1px solid var(--line-soft); font-size: 13px; }
+  .log li:first-child { border-top: 0; }
+  .log time { font: 12px var(--mono); color: var(--muted); padding-top: 1px; }
+  .log b { font-weight: 500; font-size: 12px; color: var(--muted); padding-top: 1px; }
+  .log li.agent b { color: var(--accent); }
+  .empty { color: var(--muted); font-size: 13px; padding: 8px 0; }
+
+  textarea, input[type=text], select { width: 100%; background: var(--raised); border: 1px solid var(--ctl); border-radius: var(--r-sm); padding: 8px 10px; min-height: 44px; }
+  textarea { font: 13px/1.55 var(--mono); resize: vertical; }
+  label.lbl { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+  .check { display: flex; gap: 10px; align-items: center; min-height: 44px; font-size: 14px; cursor: pointer; }
+  .check input { width: 20px; height: 20px; min-height: 0; flex: none; accent-color: var(--accent); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .stack { display: flex; flex-direction: column; gap: 16px; }
+
+  /* ---- PCP office view ---- */
+  .pcp { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 16px; align-items: start; }
+  .tabs { display: flex; gap: 4px; padding: 8px 12px 0; }
+  .tabs button { min-height: 44px; border: 0; background: none; padding: 6px 10px 8px; cursor: pointer; color: var(--muted); font-size: 13px; border-bottom: 2px solid transparent; }
+  .tabs button[aria-pressed="true"] { color: var(--fg); border-bottom-color: var(--accent); font-weight: 500; }
+  .queue { list-style: none; margin: 0; padding: 6px; display: flex; flex-direction: column; gap: 2px; }
+  .queue button { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; text-align: left; padding: 10px 10px;
+                  border: 1px solid transparent; border-radius: var(--r-sm); background: none; cursor: pointer; }
+  .queue button:hover { background: var(--sel); }
+  .queue button[aria-current="true"] { background: var(--sel); border-color: var(--accent); }
+  .queue .nm { font-weight: 500; }
+  .queue .sub { grid-column: 1 / -1; font-size: 12px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+  .queue .st { font-size: 12px; display: inline-flex; gap: 5px; align-items: center; color: var(--muted); }
+  .queue .st.need { color: var(--warn); font-weight: 500; }
+  .detail-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px 24px; align-items: center; }
+  .detail-head h1 { margin: 0; font-size: 26px; letter-spacing: -0.015em; line-height: 1.15; }
+  .detail-head p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+  .next { border: 1px solid var(--accent); border-radius: var(--r); padding: 14px 16px; display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; background: var(--raised); }
+  .next.warn { border-color: var(--warn); background: var(--warn-bg); }
+  .next.calm { border-color: var(--line); }
+  .next .what { flex: 1 1 280px; display: flex; gap: 12px; align-items: flex-start; }
+  .next .what b { display: block; }
+  .next .what span { font-size: 13px; color: var(--muted); }
+  .next.warn .ico { color: var(--warn); }
+  .next.stack .what { flex: none; }
+  .card .chip { white-space: normal; }
+  .split { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  #packet { min-height: 300px; }
+
+  /* ---- Endo office view ---- */
+  .endo { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 16px; align-items: start; }
+  .board { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+  .col { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); min-height: 260px; display: flex; flex-direction: column; }
+  .col h2 { margin: 0; padding: 10px 12px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+            display: flex; justify-content: space-between; border-bottom: 1px solid var(--line); }
+  .col ul { list-style: none; margin: 0; padding: 8px; display: flex; flex-direction: column; gap: 8px; }
+  .card { width: 100%; text-align: left; background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px; cursor: pointer;
+          display: flex; flex-direction: column; gap: 4px; transition: border-color 150ms ease-out; }
+  .card:hover { border-color: var(--accent); }
+  .card[aria-current="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--sel); }
+  .card b { font-weight: 500; font-size: 14px; }
+  .card span { font-size: 12px; color: var(--muted); }
+  .packet-view { font: 12.5px/1.6 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; background: var(--raised); border: 1px solid var(--line-soft);
+                 border-radius: var(--r-sm); padding: 12px; max-height: 360px; overflow: auto; margin: 0; }
+  .radio { display: flex; gap: 6px; flex-wrap: wrap; }
+  .radio label { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; min-height: 44px; border: 1px solid var(--ctl); border-radius: var(--r-sm); cursor: pointer; font-size: 14px; }
+  .radio input { accent-color: var(--accent); width: auto; min-height: 0; }
+  .radio label:has(input:checked) { border-color: var(--accent); background: var(--sel); }
+
+  /* ---- Patient view ---- */
+  .pt-wrap { display: grid; grid-template-columns: minmax(0, 440px) minmax(0, 1fr); gap: 32px; align-items: start; justify-content: center; }
+  .phone { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 22px 20px 24px; box-shadow: 0 12px 32px rgb(15 30 45 / 0.10); }
+  .phone h1 { font-size: 30px; line-height: 1.12; letter-spacing: -0.02em; margin: 14px 0 8px; }
+  .phone .lead { font-size: 16px; margin: 0 0 18px; }
+  .hello { display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: var(--muted); }
+  .tl { list-style: none; margin: 22px 0 0; padding: 0; }
+  .tl li { position: relative; padding: 0 0 18px 30px; }
+  .tl li::before { content: ""; position: absolute; left: 6px; top: 6px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--ctl); background: var(--panel); z-index: 1; }
+  .tl li::after { content: ""; position: absolute; left: 12px; top: 16px; bottom: -4px; width: 2px; background: var(--line); }
+  .tl li:last-child::after { display: none; }
+  .tl li.done::before { background: var(--ok); border-color: var(--ok); }
+  .tl li.done::after { background: var(--ok); }
+  .tl li.now::before { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 4px var(--sel); }
+  .tl b { font-weight: 500; font-size: 15px; }
+  .tl li:not(.done):not(.now) b { color: var(--muted); font-weight: 400; }
+  .tl .meta { display: block; font: 12px var(--mono); color: var(--muted); }
+  .slots { display: flex; flex-direction: column; gap: 8px; margin: 0 0 8px; }
+  .slots button { min-height: 48px; justify-content: space-between; }
+  .msgs { list-style: none; margin: 0 0 10px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .msgs li { font-size: 14px; padding: 8px 12px; border-radius: 12px; max-width: 88%; }
+  .msgs li.me { align-self: flex-end; background: var(--sel); }
+  .msgs li.them { align-self: flex-start; background: var(--raised); border: 1px solid var(--line); }
+  .msgs li small { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .side-notes { font-size: 14px; color: var(--muted); max-width: 420px; }
+  .side-notes h2 { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg); margin: 6px 0 10px; }
+  .side-notes ul { padding-left: 18px; margin: 0 0 16px; }
+  .side-notes li { margin-bottom: 6px; }
+
+  @media (max-width: 1100px) {
+    .endo { grid-template-columns: minmax(0, 1fr); }
+    .board { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+  }
+  @media (max-width: 960px) {
+    .pcp, .split, .pt-wrap { grid-template-columns: minmax(0, 1fr); }
+    .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 12px; }
+    .steps li::after { display: none; }
+  }
+  @media (max-width: 640px) {
+    .bar { position: static; }
+    .bar-in { padding: 8px 12px; } main { padding: 14px 12px 40px; }
+    .personas { width: 100%; } .personas button { flex: 1; justify-content: center; } .personas small { display: none; }
+    .log li { grid-template-columns: 56px minmax(0, 1fr); } .log b { grid-column: 2; }
+    .detail-head { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <div class="brand"><b>Referral Tracker</b><span>Type 2 diabetes · primary care to endocrinology</span></div>
+    <nav class="personas" aria-label="Whose view">
+      <button type="button" data-persona="patient"><svg class="ico" viewBox="0 0 24 24" data-i="user"></svg><span>Patient<small id="ptName">—</small></span></button>
+      <button type="button" data-persona="pcp"><svg class="ico" viewBox="0 0 24 24" data-i="stethoscope"></svg><span>PCP office<small>Dana, referral coordinator</small></span><span class="badge" id="pcpBadge" hidden></span></button>
+      <button type="button" data-persona="endo"><svg class="ico" viewBox="0 0 24 24" data-i="hospital"></svg><span>Endo office<small>Intake + Dr. Lee</small></span><span class="badge" id="endoBadge" hidden></span></button>
+    </nav>
+  </div>
+  <div class="demo" role="region" aria-label="Demo controls">
+    <div class="demo-in">
+      <b>Demo controls</b>
+      <span>Day <time id="today"></time></span>
+      <button class="btn quiet" type="button" id="advance"><svg class="ico sm" viewBox="0 0 24 24" data-i="fast-forward"></svg>Next day</button>
+      <button class="btn quiet" type="button" id="resetAll">Reset demo</button>
+      <button class="btn ghost" type="button" id="undoReset" hidden>Undo reset</button>
+      <label for="ptPick">Patient view shows</label><select id="ptPick"></select>
+      <span>Demo: synthetic patients. Office, payer and patient actions are simulated.</span>
+      <span id="claudeMode">Checking for Claude…</span>
+      <a href="/" style="color:inherit">Open the note drafter</a>
+    </div>
+  </div>
+</header>
+<div id="live" class="sr" aria-live="polite"></div>
+<main id="main" tabindex="-1"></main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>.qr{background:#fff;padding:6px;border-radius:6px;flex:none;line-height:0}.qr svg{display:block;width:104px;height:104px}</style>
+<script>
+/* ---------- icons: Lucide (ISC license), inlined because the page loads no external scripts ---------- */
+const ICONS = {
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  stethoscope: '<path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/>',
+  hospital: '<path d="M12 7v4"/><path d="M14 21v-3a2 2 0 0 0-4 0v3"/><path d="M14 9h-4"/><path d="M18 11h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h2"/><path d="M18 21V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  send: '<path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/>',
+  file: '<path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+  sparkles: '<path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/>',
+  message: '<path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/>',
+  calendar: '<path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/>',
+  shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  "fast-forward": '<path d="M12 6a2 2 0 0 1 3.414-1.414l6 6a2 2 0 0 1 0 2.828l-6 6A2 2 0 0 1 12 18z"/><path d="M2 6a2 2 0 0 1 3.414-1.414l6 6a2 2 0 0 1 0 2.828l-6 6A2 2 0 0 1 2 18z"/>',
+  bell: '<path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/>',
+  done: '<circle cx="12" cy="12" r="10"/><path d="m16 9-5.5 5.5L8 12"/>',
+};
+function icon(name, cls = '') {
+  const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('class', 'ico ' + cls); s.setAttribute('aria-hidden', 'true');
+  s.innerHTML = ICONS[name] || ''; return s;
+}
+document.querySelectorAll('svg[data-i]').forEach(s => { s.innerHTML = ICONS[s.dataset.i === 'stethoscope' ? 'stethoscope' : s.dataset.i] || ''; s.setAttribute('aria-hidden', 'true'); });
+
+/* ---------- tiny DOM helper: text always goes in as textContent ---------- */
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k === 'class') el.className = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else if (v === true) el.setAttribute(k, '');
+    else el.setAttribute(k, v);
+  }
+  for (const kid of kids.flat()) if (kid != null && kid !== false) el.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  return el;
+}
+const $ = id => document.getElementById(id);
+
+/* ---------- the referral model ---------- */
+const SPEC = 'Endocrinology';
+const STEPS = [
+  { label: 'Ordered',           pt: 'Referral ordered',             ptText: 'Your doctor referred you to Endocrinology. Your care team is preparing the referral.' },
+  { label: 'Packet ready',      pt: 'Referral prepared',            ptText: 'Your care team has prepared your referral and is checking your insurance.' },
+  { label: 'Insurance cleared', pt: 'Insurance approved',           ptText: 'Your insurance approved the referral. We are sending it to the Endocrinology office.' },
+  { label: 'Sent',              pt: 'Sent to Endocrinology',        ptText: 'Your referral was sent to the Endocrinology office. They will confirm they have it.' },
+  { label: 'Received',          pt: 'Received by Endocrinology',    ptText: 'The Endocrinology office has your referral. A doctor there will review it.' },
+  { label: 'Accepted',          pt: 'Choose your appointment time', tl: 'Accepted', ptText: 'The Endocrinology office accepted your referral. Choose an appointment time below.' },
+  { label: 'Scheduled',         pt: 'Appointment booked',           ptText: 'Your appointment is booked.' },
+  { label: 'Getting ready',     pt: 'Getting ready for your visit', ptText: 'Bring your medication list and any questions. If the office asks for lab tests, get them before the visit.' },
+  { label: 'Loop closed',       pt: 'Visit complete',               ptText: 'Your visit is complete. Your primary care doctor has the specialist’s notes.' },
+];
+/* Urgency is the referral priority the PCP sets on the order (Epic-style tiers; each organization configures its own list).
+   It travels with the referral to the Endo office and shortens how long the agent waits before flagging a stall. */
+const URG = ['Routine', 'Urgent', 'Emergency'];
+const STALL_DAYS = { Routine: 3, Urgent: 1, Emergency: 0 };  // days without receipt before flagging the coordinator
+const SLOT_GAPS = { Routine: [14, 17, 21], Urgent: [2, 3, 4], Emergency: [1, 2, 3] };
+const urgRank = r => URG.indexOf(r.urgency);
+function urgChip(u, extra = '') { return u === 'Routine' ? null : h('span', { class: 'chip warn', style: extra }, icon('alert', 'sm'), u); }
+const NOBOOK_DAYS = 3;  // accepted but not booked after this many days: flag for the coordinator
+const VIEWS = ['patient', 'pcp', 'endo'];
+/* The six stages of the referral flow. Each groups some of the nine tracker steps (the number is the last step in the stage). */
+const STAGES = [['Refer', 2], ['Send', 3], ['Review', 5], ['Book', 6], ['Visit', 7], ['Reply', 8]];
+function stageOf(r) { const i = STAGES.findIndex(([, last]) => r.step <= last); return `Stage ${i + 1} of 6 · ${STAGES[i][0]}`; }
+const OFFICES = ['Riverside Endocrinology', 'Lakeside Diabetes and Endocrine Center'];
+/* The referral code is what the QR code carries: a referral number and nothing else. */
+function codeFor(pid) { return 'RT-' + pid.slice(0, 6).toUpperCase(); }
+function sampleReply() {
+  return {
+    findings: 'Sample consult note for the demo: diabetes history, current medications and recent results reviewed with the patient.',
+    plan: 'Sample plan for the demo: treatment options discussed. Primary care to continue routine monitoring. Return visit in 3 months.',
+    patient: 'You saw the Endocrinology team and they reviewed your diabetes care with you. Their notes are with Dr. Patel. Next step: keep your follow-up visit with Dr. Patel’s office.',
+  };
+}
+
+let DATA = null, PTS = {}, S = null, LIVE = false, MODEL = '', ctl = null, UNDO = null, pendingSay = '';
+const KEY = 'referral-tracker-app-v2';
+
+function asOf(day) { const d = new Date(DATA.as_of + 'T12:00:00'); d.setDate(d.getDate() + day); return d; }
+function fmt(day) { return asOf(day).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+function fmtLong(day) { return asOf(day).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }); }
+function weekday(day) { while ([0, 6].includes(asOf(day).getDay())) day++; return day; }
+function first(name) { return name.split(' ')[0]; }
+
+function log(r, who, text, day = S.day) { r.log.push({ day, who, text }); pendingSay = `${PTS[r.pid].name}: ${text}`; }
+function seedRef(pid, step, start, urgency = 'Routine') {
+  const r = { pid, step, urgency, at: {}, stalled: false, nudged: false, nudgeText: '', noBook: false, reminded: false, remindText: '',
+              consent: step >= 1, code: '', office: OFFICES[0], declined: null, checkedIn: null, missed: false, reply: null,
+              elig: false, info: null, priority: null, slots: [], appt: null, packet: '', packetBy: '', refNo: '',
+              reviewed: false, pcpOk: false, log: [], msgs: [] };
+  const p = PTS[pid];
+  const say = (i, who, text) => r.log.push({ day: r.at[i], who, text });
+  for (let i = 0; i <= step; i++) r.at[i] = start + [0, 1, 2, 3, 5, 7, 9, 10, 20][i];
+  say(0, 'Dr. Patel', `Signed referral to ${SPEC}. Urgency: ${urgency.toLowerCase()}.`); say(0, 'Agent', 'Opened the tracker and sent the patient a tracker link.');
+  if (step >= 1) { r.packet = templatePacket(p, true); r.packetBy = 'template'; r.reviewed = r.pcpOk = true; say(1, 'Dana', 'Reviewed and approved the referral packet.'); }
+  if (step >= 2) { r.elig = true; r.refNo = 'SIM-' + (4100 + Object.keys(S.refs).length * 37); say(2, 'Agent', 'Eligibility check: coverage active (simulated).'); say(2, 'Dana', `Submitted the HMO referral request. Approved as ${r.refNo}, valid 90 days (simulated).`); }
+  if (step >= 3) { r.code = codeFor(pid); say(3, 'Agent', `Sent to the ${SPEC} office by secure message. Delivery confirmed. Issued the patient a referral QR code.`); }
+  if (step >= 4) say(4, 'Endo office', 'Confirmed receipt.');
+  if (step >= 5) { r.priority = urgency; say(5, 'Dr. Lee', `Accepted. Kept the PCP's urgency: ${urgency.toLowerCase()}.`); }
+  if (step >= 6) { r.appt = weekday(r.at[6] + 14); say(6, 'Patient', `Booked ${fmt(r.appt)}.`); }
+  if (step >= 7) say(7, 'Agent', 'Sent visit prep to the patient.');
+  if (step >= 8) { r.appt = r.checkedIn = r.at[8]; r.reply = sampleReply(); say(8, 'Endo office', 'Visit complete. Consult note sent.'); say(8, 'Agent', 'Matched the consult note to this referral and notified Dr. Patel. Loop closed.'); }
+  return r;
+}
+
+function freshState() {
+  S = { day: 0, persona: 'pcp', sel: null, ptSel: null, endoSel: null, filter: 'need', refs: {} };
+  const ids = DATA.condition.patients.map(p => p.id);
+  const byName = n => DATA.condition.patients.find(p => p.name.startsWith(n))?.id;
+  const plan = [['Forest', 0, 0], ['Shayla', 1, -3], ['Maricela', 3, -7, 'Urgent'], ['Granville', 4, -7], ['Pandora', 6, -11], ['Spencer', 8, -30]];
+  for (const [n, step, start, urg] of plan) { const id = byName(n); if (id) S.refs[id] = seedRef(id, step, start, urg); }
+  for (const id of ids) if (!S.refs[id]) S.refs[id] = seedRef(id, 0, 0);
+  S.sel = S.ptSel = byName('Forest') || ids[0];
+  agentTick(); pendingSay = '';
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
+function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.refs && Object.keys(s.refs).every(id => PTS[id])) { S = s; return true; } } catch {} return false; }
+
+/* The agent's rules: what it does on its own as days pass. It drafts and flags; people decide and send. */
+function agentTick() {
+  for (const r of Object.values(S.refs)) {
+    const p = PTS[r.pid];
+    if (r.step === 3 && !r.stalled && S.day - r.at[3] >= STALL_DAYS[r.urgency]) {
+      r.stalled = true;
+      r.nudgeText = `Hello, this is Dr. Patel's office checking on a referral we sent on ${fmt(r.at[3])} for ${p.name} (urgency: ${r.urgency.toLowerCase()}; HMO referral ${r.refNo}). Could you confirm that you received it? Thank you.\nDana, referral coordinator`;
+      log(r, 'Agent', `No receipt from the ${SPEC} office ${S.day - r.at[3]} day(s) after sending (${r.urgency.toLowerCase()} urgency). Flagged for Dana and drafted a nudge for her to review.`);
+    }
+    if (r.step === 5 && !r.noBook && S.day - r.at[5] >= NOBOOK_DAYS) {
+      r.noBook = true;
+      r.remindText = `Hi ${first(p.name)}, the Endocrinology office accepted your referral and has appointment times open. You can choose one in your referral tracker. If none of the times work, reply here and we will help.\nDana, Dr. Patel's office`;
+      log(r, 'Agent', `Patient has not booked ${S.day - r.at[5]} days after acceptance. Flagged for Dana and drafted a reminder for her to review.`);
+    }
+    if (r.step === 6 && S.day >= r.at[6] + 1) {
+      r.step = 7; r.at[7] = S.day;
+      log(r, 'Agent', 'Sent visit prep to the patient: what to bring and how to ask questions.');
+    }
+    if ((r.step === 6 || r.step === 7) && !r.checkedIn && !r.missed && r.appt != null && S.day > r.appt) {
+      r.missed = true;
+      log(r, 'Agent', `Patient did not check in for the ${fmt(r.appt)} visit. Alerted Dana to call and rebook.`);
+    }
+  }
+}
+function advance(r, step, day = S.day) { r.step = step; r.at[step] = day; }
+/* Back to booking with new times: the patient asked for another time, or missed the visit. */
+function reoffer(r, why) {
+  r.appt = null; r.missed = false; r.noBook = r.reminded = false; delete r.at[6]; delete r.at[7]; advance(r, 5);
+  r.slots = [...new Set(SLOT_GAPS[r.priority || r.urgency].map(g => weekday(S.day + g + 1)))];
+  log(r, 'Agent', `${why} Offered the patient ${r.slots.length} new slots.`); done();
+}
+
+function infoOpen(r) { return !!(r.info && !r.info.answer); }
+function needsDana(r) { return r.step <= 2 || (r.stalled && !r.nudged) || (r.noBook && !r.reminded) || infoOpen(r) || !!r.declined || !!r.missed; }
+function danaStatus(r) {
+  if (r.declined) return { text: 'Declined: send elsewhere', need: true, warn: true };
+  if (r.missed) return { text: 'Missed visit: call and rebook', need: true, warn: true };
+  if (infoOpen(r)) return { text: 'Endo office needs info', need: true, warn: true };
+  if (r.stalled) return { text: r.nudged ? 'Nudged, awaiting receipt' : 'Stalled: no receipt', need: !r.nudged, warn: true };
+  if (r.noBook) return { text: r.reminded ? 'Reminded, not booked yet' : 'Patient has not booked', need: !r.reminded, warn: true };
+  if (r.step === 0) return { text: 'Draft + approve packet', need: true };
+  if (r.step === 1) return { text: r.elig ? 'Submit HMO referral' : 'Check eligibility', need: true };
+  if (r.step === 2) return { text: 'Ready to send', need: true };
+  if (r.step === 3) return { text: 'Waiting on Endo office' };
+  if (r.step === 4) return { text: 'Endo office reviewing' };
+  if (r.step === 5) return { text: 'Waiting on patient to book' };
+  if (r.step <= 7) return { text: r.checkedIn ? 'Checked in, visit under way' : 'Visit ' + fmt(r.appt) };
+  return { text: 'Loop closed' };
+}
+function endoNeeds(r) { return !r.declined && (r.step === 3 || (r.step === 4 && !infoOpen(r)) || (r.step === 7 && !!r.checkedIn)); }
+
+/* ---------- packet drafting ---------- */
+function templatePacket(p, final = false) {
+  return [
+    final ? '[TEMPLATE: built from chart fields, not written by Claude]' : '[TEMPLATE DRAFT: built from chart fields, not written by Claude]', '',
+    'REASON FOR REFERRAL',
+    `${p.name}, ${p.age}-year-old ${p.sex}, referred to ${SPEC} for type 2 diabetes.`, '',
+    'CLINICAL QUESTION', (final ? '' : '[suggested - confirm] ') + 'Advice on the next step in glucose-lowering treatment.', '',
+    'RELEVANT HISTORY', ...p.problems.map(x => '- ' + x), '',
+    'CURRENT MEDICATIONS AND ALLERGIES', ...(p.meds.length ? p.meds.map(x => '- ' + x) : ['- None recorded']),
+    'Allergies: ' + (p.allergies.join(', ') || 'none recorded'), '',
+    'KEY RESULTS', ...p.results.map(r => `- ${r[0]}: ${r[1]} (${r[2]})`),
+    ...(final ? [] : ['', 'TO CONFIRM BEFORE SENDING', '- Why the referral is happening now', '- Any hypoglycemia or medication side effects']),
+  ].join('\n');
+}
+/* A packet cannot be approved while it still carries unconfirmed placeholders. */
+function blockers(text) {
+  const out = [];
+  if (/\[suggested\s*-\s*confirm\]/i.test(text)) out.push('confirm or rewrite the clinical question and remove "[suggested - confirm]"');
+  const i = text.toUpperCase().indexOf('TO CONFIRM BEFORE SENDING');
+  if (i >= 0) {
+    const rest = text.slice(i + 25).split('\n').map(x => x.trim()).filter(x => x && !/^[-•\s]*(none|nothing)\b/i.test(x));
+    if (rest.length) out.push('resolve, then delete, the items under "TO CONFIRM BEFORE SENDING"');
+  }
+  return out;
+}
+/* Reads the server's newline-delimited JSON stream for a note draft or revision. */
+async function streamNote(body, onText) {
+  const res = await fetch('/api/referrals', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: ctl.signal });
+  if (!res.ok) throw new Error('The server could not start the draft.');
+  const reader = res.body.getReader(), decoder = new TextDecoder();
+  let buffer = '', text = '', finished = false;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop();
+    for (const line of lines) {
+      if (!line) continue;
+      const ev = JSON.parse(line);
+      if (ev.type === 'text') { text += ev.text; onText(text); }
+      else if (ev.type === 'error') throw new Error(ev.message);
+      else if (ev.type === 'done') finished = true;
+    }
+  }
+  if (!finished) throw new Error('The draft was interrupted.');
+  return text;
+}
+function noteRequest(r, extra = {}) {
+  return { patient_id: r.pid, condition: DATA.condition.key, urgency: r.urgency.toLowerCase(), ...extra };
+}
+async function draftWithClaude(r) {
+  const p = PTS[r.pid], box = $('packet'), status = $('draftStatus');
+  const finish = () => { r.reviewed = r.pcpOk = false; r.questions = null; save(); render(); $('packet')?.focus({ preventScroll: true }); };
+  if (!LIVE) { r.packet = templatePacket(p); r.packetBy = 'template'; pendingSay = 'Template draft created.'; finish(); return; }
+  ctl?.abort(); ctl = new AbortController();
+  $('draftBtn').disabled = true; status.textContent = 'Claude is reading the chart… the first text can take up to a minute';
+  box.value = '';
+  try {
+    r.packet = await streamNote(noteRequest(r), t => { box.value = t; status.textContent = 'Writing…'; });
+    r.packetBy = 'claude';
+    log(r, 'Agent', 'Drafted the referral packet from the chart with Claude. Waiting for review.');
+    finish();
+  } catch (e) {
+    box.value = r.packet;
+    status.textContent = e.name === 'AbortError' ? 'Stopped.' : `${e.message} Try again, or write the packet by hand.`;
+    $('draftBtn').disabled = false;
+  }
+}
+
+/* ---------- follow-up questions: the agent asks what the chart could not tell it, the answers update the packet ---------- */
+async function askFollowUps(r) {
+  const status = $('askStatus'), btn = $('askBtn');
+  btn.disabled = true; status.textContent = 'Reading the draft for gaps…';
+  try {
+    const res = await fetch('/api/questions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(noteRequest(r, { draft: r.packet })) });
+    if (!res.ok) throw new Error((await res.json()).detail || 'The questions could not be loaded.');
+    r.questions = (await res.json()).questions.map(q => ({ question: q.question, why: q.why, answer: '' }));
+    log(r, 'Agent', r.questions.length ? `Asked Dana ${r.questions.length} follow-up question(s) about the draft.` : 'Found nothing more to ask about the draft.');
+    done();
+  } catch (e) { status.textContent = e.message; btn.disabled = false; }
+}
+async function updatePacket(r) {
+  const answered = r.questions.filter(q => q.answer.trim()), status = $('askStatus'), box = $('packet');
+  if (!answered.length) { status.textContent = 'Answer at least one question first.'; $('fu0')?.focus(); return; }
+  const finish = () => { r.questions = null; r.reviewed = r.pcpOk = false; log(r, 'Agent', `Updated the packet with Dana's answers to ${answered.length} follow-up question(s). Waiting for review.`); done(); };
+  if (!LIVE) {
+    r.packet += '\n\nADDITIONAL INFORMATION FROM THE PCP OFFICE\n' + answered.map(q => `- ${q.question} ${q.answer.trim()}`).join('\n');
+    finish(); return;
+  }
+  ctl?.abort(); ctl = new AbortController();
+  $('updateBtn').disabled = true; status.textContent = 'Claude is updating the packet…';
+  const prior = r.packet;
+  try {
+    r.packet = await streamNote(noteRequest(r, { draft: prior, answers: r.questions.map(q => ({ question: q.question, answer: q.answer })) }), t => { box.value = t; });
+    finish();
+  } catch (e) {
+    box.value = prior;  // a failed update must not lose the packet
+    status.textContent = e.name === 'AbortError' ? 'Stopped.' : `${e.message} The packet was not changed.`;
+    $('updateBtn').disabled = false;
+  }
+}
+function followUps(r) {
+  const qs = r.questions;
+  if (!qs) return h('div', { class: 'row' },
+    h('button', { class: 'btn ghost', type: 'button', id: 'askBtn', 'data-fk': 'askBtn', onclick: () => askFollowUps(r) }, icon('message', 'sm'), 'Get follow-up questions'),
+    h('span', { class: 'muted', id: 'askStatus', style: 'font-size:13px' }, 'The agent asks what the chart could not tell it. Your answers update the draft.'));
+  if (!qs.length) return h('p', { class: 'muted', style: 'font-size:13px;margin:0' }, 'The agent had no follow-up questions for this draft.');
+  return h('div', { class: 'stack', style: 'gap:10px;border:1px solid var(--line);border-radius:6px;padding:12px', role: 'group', 'aria-label': 'Follow-up questions' },
+    h('p', { class: 'lbl', style: 'margin:0' }, 'Follow-up questions from the agent · answer what you can'),
+    qs.map((q, i) => h('div', {},
+      h('label', { for: 'fu' + i, style: 'display:block;font-size:14px' }, q.question),
+      h('span', { class: 'muted', style: 'display:block;font-size:12px;margin-bottom:4px' }, q.why),
+      h('input', { type: 'text', id: 'fu' + i, 'data-fk': 'fu' + i, value: q.answer || '', oninput: e => { q.answer = e.target.value; save(); } }))),
+    h('div', { class: 'row' },
+      h('button', { class: 'btn ghost', type: 'button', id: 'updateBtn', onclick: () => updatePacket(r) }, icon('sparkles', 'sm'), 'Update packet with answers'),
+      h('span', { class: 'muted', id: 'askStatus', style: 'font-size:13px' })));
+}
+
+/* ---------- patient message routing ----------
+   Rule: a message gets an automatic answer only when it is clearly about referral status or scheduling.
+   Anything that mentions health, and anything unclear, goes to a nurse with no automatic answer. */
+const CLINICAL = /\b(pain|hurt|ache|sick|ill|nause|vomit|dizz|faint|sugar|glucose|a1c|dose|dosage|pill|tablet|medic|meds?|metformin|insulin|side effect|symptom|thirst|blur|vision|numb|tingl|wound|sore|fever|breath|chest|stomach|diarrhea|headache|tired|weak|sweat|shak|swell|bleed|feel|felt|feeling|awful|worse|bad|scared|worried|anxious|emergency|eat|diet|food|weight|stop taking|test result|lab|blood)/i;
+const STATUS_Q = /\b(referral|appointment|appt|visit|schedul|resched|book|slot|insurance|office|tracker|status)/i;
+async function routeMessage(r, text) {
+  const facts = `Referral to ${SPEC}. Current status: ${STEPS[r.step].pt}. ${r.appt ? 'Appointment: ' + fmtLong(r.appt) + '.' : ''} ${r.slots.length && r.step === 5 ? 'Open slots: ' + r.slots.map(fmtLong).join('; ') + '.' : ''}`;
+  let route, reply = '', ai = false;
+  try {
+    const res = await fetch('/api/tracker/message', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, facts }) });
+    if (!res.ok) throw new Error('routing failed');
+    ({ route, reply, ai } = await res.json());
+  } catch (e) {
+    // Server unreachable: apply the same keyword rule here, which never writes an answer of its own.
+    route = !CLINICAL.test(text) && STATUS_Q.test(text) ? 'status' : 'nurse'; reply = ''; ai = false;
+  }
+  if (route === 'nurse') {
+    reply = 'We’ve sent your message to a nurse on your care team. They will reply here. If this is an emergency, call 911.';
+    log(r, 'Agent', 'Patient message sent to the nurse pool. No automatic answer given.');
+  } else {
+    if (!reply) reply = `${STEPS[r.step].ptText}${r.appt ? ' Your appointment is ' + fmtLong(r.appt) + '.' : ''}`;
+    log(r, 'Agent', `Answered a patient status question from the tracker status${ai ? ' (AI-written)' : ''}.`);
+  }
+  return { route, reply, ai };
+}
+
+/* ---------- rendering ---------- */
+function stamp(r, fresh, view) {
+  const stalled = view === 'pcp' && r.stalled;
+  let text = STEPS[r.step].label;
+  if (view === 'patient' && r.step === 8) text = 'Visit complete';
+  if (view === 'endo' && r.step === 3) text = 'Incoming';
+  if (r.checkedIn && r.step === 7) text = 'Checked in';
+  if (r.declined) text = 'Declined';
+  if (view === 'patient' && (infoOpen(r) || r.declined)) text = 'More info needed';
+  const cls = stalled ? 'warn' : r.step === 8 ? 'ok' : '';
+  return h('div', { class: `stamp ${cls} ${fresh ? 'fresh' : ''}`, role: 'img', 'aria-label': `Status: ${stalled ? 'stalled' : text}` },
+    stalled ? 'Stalled' : text, h('small', {}, fmt(r.at[r.step])));
+}
+function stepper(r) {
+  return h('ol', { class: 'steps', 'aria-label': 'Referral progress' }, STEPS.map((s, i) =>
+    h('li', { class: i < r.step ? 'done' : i === r.step ? (r.stalled ? 'now stall' : (r.step === 8 ? 'done' : 'now')) : '', 'aria-current': i === r.step ? 'step' : null },
+      s.label, h('small', {}, r.at[i] != null ? fmt(r.at[i]) : ' '))));
+}
+function logList(r) {
+  return h('ul', { class: 'log' }, [...r.log].reverse().map(e => h('li', { class: e.who === 'Agent' ? 'agent' : '' },
+    h('time', {}, fmt(e.day)), h('b', {}, e.who === 'Agent' ? 'Agent (AI)' : e.who), h('span', {}, e.text))));
+}
+/* What the patient is told. Off-track states get their own plain wording; a stall is never shown to the patient. */
+function patientStatus(r) {
+  if (r.declined) return { pt: 'More information needed', ptText: 'Your care team is sending your referral to a different Endocrinology office. You do not need to do anything right now.' };
+  if (infoOpen(r)) return { pt: 'More information needed', ptText: 'The Endocrinology office asked your care team for more information. Your care team is handling it. You do not need to do anything right now.' };
+  if (r.missed) return { pt: 'We missed you at your visit', ptText: 'Your care team will call you to find a new time.' };
+  if (r.step === 8 && r.reply) return { pt: 'Visit complete', ptText: r.reply.patient };
+  if (r.checkedIn && r.step === 7) return { pt: 'Checked in', ptText: 'You are checked in for your visit.' };
+  return STEPS[r.step];
+}
+function qrCard(r) {
+  let box = null;
+  try {
+    const q = qrcode(0, 'M'); q.addData(`${location.origin}/tracker?ref=${r.code}#patient`); q.make();
+    box = h('div', { class: 'qr', role: 'img', 'aria-label': 'QR code for referral ' + r.code }); box.innerHTML = q.createSvgTag(4, 0);
+  } catch (e) { box = null; }  // QR library not loaded (offline): the printed code below still works
+  return h('div', { class: 'row', style: 'gap:14px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:12px;margin:14px 0;flex-wrap:nowrap' }, box,
+    h('div', {}, h('p', { class: 'eyebrow', style: 'margin:0' }, 'Your referral code'), h('p', { class: 'mono', id: 'refCode', style: 'font-size:18px;margin:2px 0' }, r.code),
+      h('p', { class: 'muted', style: 'font-size:12px;margin:0' }, 'Show this at check-in, on your phone or printed. It holds only your referral number, never medical details.')));
+}
+function replyView(r) {
+  return h('div', {}, h('p', { class: 'lbl' }, `Reply from ${r.office} · findings and plan`),
+    h('blockquote', { class: 'quote' }, `Findings: ${r.reply.findings}\nPlan: ${r.reply.plan}`));
+}
+function declineRow(r) {
+  const why = h('input', { type: 'text', id: 'declineWhy', placeholder: 'e.g. Not taking new patients before March' });
+  return h('div', { style: 'border-top:1px solid var(--line);padding-top:12px' }, h('label', { class: 'lbl', for: 'declineWhy' }, 'Cannot take this referral? Decline with a reason'),
+    h('div', { class: 'row', style: 'flex-wrap:nowrap' }, why,
+      h('button', { class: 'btn ghost', type: 'button', onclick: () => { const t = why.value.trim(); if (!t) { why.focus(); return; }
+        r.declined = { reason: t, day: S.day }; log(r, 'Endo office', `Declined the referral: ${t}`); log(r, 'Agent', 'Told Dana so the referral can go to another office.'); done(); } }, 'Decline')));
+}
+function replyForm(r) {
+  const d = sampleReply();
+  const area = (id, label, val) => h('div', {}, h('label', { class: 'lbl', for: id }, label), h('textarea', { id, rows: '3' }, val));
+  return h('div', { class: 'stack', style: 'gap:10px' },
+    h('span', { class: 'chip accent', style: 'align-self:flex-start' }, icon('check', 'sm'), `Checked in ${fmt(r.checkedIn)}`),
+    area('replyFindings', 'Findings for the PCP · sample text, edit before sending', d.findings),
+    area('replyPlan', 'Plan for the PCP', d.plan),
+    area('replyPatient', 'Summary and next steps shown to the patient', d.patient),
+    h('div', {}, h('button', { class: 'btn', type: 'button', 'data-primary': true, onclick: () => {
+      const v = id => $(id).value.trim();
+      if (!v('replyFindings') || !v('replyPlan') || !v('replyPatient')) { $('replyFindings').focus(); return; }
+      r.reply = { findings: v('replyFindings'), plan: v('replyPlan'), patient: v('replyPatient') };
+      const day = Math.max(r.checkedIn, S.day); advance(r, 8, day);
+      log(r, 'Dr. Lee', 'Wrote the reply: findings and plan.', day);
+      log(r, 'Agent', 'Saved the reply to the record, matched it to this referral and notified Dr. Patel. Loop closed.', day); done(); } }, icon('send', 'sm'), 'Send reply + close the loop')));
+}
+let lastStamp = '';
+function freshKey(r, view) { const k = view + r.pid + ':' + r.step + ':' + r.stalled; const f = k !== lastStamp; lastStamp = k; return f; }
+function ph(...kids) { return h('h2', { class: 'ph' }, ...kids); }
+function done() { save(); render(); }
+
+function nextCard(r) {
+  const what = (ic, title, sub) => h('div', { class: 'what' }, icon(ic), h('div', {}, h('b', {}, title), h('span', {}, sub)));
+  if (r.declined) {
+    const other = OFFICES.find(o => o !== r.office) || OFFICES[0];
+    return h('div', { class: 'next warn stack', style: 'align-items:stretch;gap:10px', role: 'group', 'aria-label': 'Declined referral' },
+      what('alert', `${r.office} declined the referral`, 'Send it to another office. The approved packet and the insurance referral go with it.'),
+      h('blockquote', { class: 'quote' }, r.declined.reason),
+      h('div', {}, h('button', { class: 'btn warn', type: 'button', 'data-primary': true, onclick: () => {
+        log(r, 'Dana', `Redirected the referral from ${r.office} to ${other}.`);
+        r.office = other; r.declined = null; r.info = null; r.stalled = r.nudged = false; delete r.at[4]; advance(r, 3);
+        log(r, 'Agent', `Sent to ${other} by secure message with urgency ${r.urgency.toLowerCase()}. Delivery confirmed. Watching for receipt.`); done(); } }, icon('send', 'sm'), `Send to ${other}`)));
+  }
+  if (r.missed) return h('div', { class: 'next warn stack', style: 'align-items:stretch;gap:10px', role: 'group', 'aria-label': 'Missed visit' },
+    what('alert', `The patient did not check in for the ${fmt(r.appt)} visit`, 'Call the patient, then offer new times. The agent watches for the new booking.'),
+    h('div', {}, h('button', { class: 'btn warn', type: 'button', 'data-primary': true, onclick: () => { log(r, 'Dana', 'Called the patient about the missed visit.'); reoffer(r, 'Visit missed.'); } }, icon('calendar', 'sm'), 'Called the patient · offer new times')));
+  if (infoOpen(r)) {
+    const box = h('textarea', { id: 'infoReply', rows: '3', 'aria-label': 'Reply to the Endo office' });
+    return h('div', { class: 'next warn stack', style: 'align-items:stretch;gap:10px' },
+      what('alert', 'The Endo office needs more information', 'Reply here. Your answer goes to the Endo office with the referral.'),
+      h('blockquote', { class: 'quote' }, r.info.ask), h('div', {}, h('label', { class: 'lbl', for: 'infoReply' }, 'Your reply'), box),
+      h('div', {}, h('button', { class: 'btn', type: 'button', 'data-primary': true, onclick: () => { const t = box.value.trim(); if (!t) { box.focus(); return; } r.info.answer = t; log(r, 'Dana', `Replied to the Endo office: ${t}`); done(); } }, icon('send', 'sm'), 'Send reply to Endo office')));
+  }
+  if (r.stalled && !r.nudged) {
+    const box = h('textarea', { id: 'nudgeText', rows: '4', oninput: e => { r.nudgeText = e.target.value; save(); } }, r.nudgeText);
+    return h('div', { class: 'next warn stack', style: 'align-items:stretch;gap:10px', role: 'group', 'aria-label': 'Stalled referral' },
+      what('alert', `No receipt from the ${SPEC} office ${S.day - r.at[3]} day(s) after sending${r.urgency === 'Routine' ? '' : ' · ' + r.urgency + ' referral'}`, 'The agent drafted this nudge. Read it, edit it if needed, then send. Nothing goes out until you do.'),
+      h('div', {}, h('label', { class: 'lbl', for: 'nudgeText' }, 'Nudge to the Endo office (drafted by the agent, editable)'), box),
+      h('div', {}, h('button', { class: 'btn warn', type: 'button', 'data-primary': true, onclick: () => { if (!r.nudgeText.trim()) { box.focus(); return; } r.nudged = true; log(r, 'Dana', 'Reviewed and sent a nudge to the Endo office.'); done(); } }, icon('send', 'sm'), 'Send nudge to Endo office')));
+  }
+  if (r.noBook && !r.reminded) {
+    const box = h('textarea', { id: 'remindText', rows: '4', oninput: e => { r.remindText = e.target.value; save(); } }, r.remindText);
+    return h('div', { class: 'next warn stack', style: 'align-items:stretch;gap:10px', role: 'group', 'aria-label': 'Patient has not booked' },
+      what('alert', `Accepted ${S.day - r.at[5]} days ago, but the patient has not booked`, 'The agent drafted this reminder. Read it, edit it if needed, then send.'),
+      h('div', {}, h('label', { class: 'lbl', for: 'remindText' }, 'Reminder to the patient (drafted by the agent, editable)'), box),
+      h('div', {}, h('button', { class: 'btn warn', type: 'button', 'data-primary': true, onclick: () => { if (!r.remindText.trim()) { box.focus(); return; } r.reminded = true; r.msgs.push({ me: false, text: r.remindText, route: 'staff' }); log(r, 'Dana', 'Reviewed and sent a booking reminder to the patient.'); done(); } }, icon('send', 'sm'), 'Send reminder to patient')));
+  }
+  if (r.step === 0) return h('div', { class: 'next' }, what('file', 'Draft and approve the referral packet', 'Review the draft below. Nothing is sent until you approve.'));
+  if (r.step === 1 && !r.elig) return h('div', { class: 'next' }, what('shield', 'Check the patient’s eligibility', 'The agent looks up coverage and shows you the result before anything goes to the payer.'),
+    h('button', { class: 'btn', type: 'button', 'data-primary': true, onclick: () => { r.elig = true; log(r, 'Agent', 'Eligibility check: coverage active, PCP of record Dr. Patel, referral required (simulated).'); done(); } }, icon('shield', 'sm'), 'Check eligibility'));
+  if (r.step === 1) return h('div', { class: 'next stack', style: 'align-items:stretch;gap:10px' },
+    what('shield', 'Submit the HMO referral request', 'Check the result and the request, then submit.'),
+    h('blockquote', { class: 'quote' }, `Eligibility (simulated): coverage active · PCP of record: Dr. Patel · referral required for ${SPEC}\nRequest drafted by the agent: ${SPEC} consult for type 2 diabetes, up to 3 visits within 90 days.`),
+    h('div', {}, h('button', { class: 'btn', type: 'button', 'data-primary': true, onclick: () => { r.refNo = 'SIM-' + Math.floor(1000 + Math.random() * 9000); advance(r, 2); log(r, 'Dana', `Submitted the HMO referral request. Approved as ${r.refNo}, valid 90 days (simulated).`); done(); } }, icon('send', 'sm'), 'Submit HMO referral')));
+  if (r.step === 2) return h('div', { class: 'next' }, what('send', `Send to the ${SPEC} office`, `Packet approved · Urgency ${r.urgency.toLowerCase()} · HMO referral ${r.refNo}. The agent confirms delivery and watches for receipt.`),
+    h('button', { class: 'btn', type: 'button', 'data-primary': true, onclick: () => { advance(r, 3); r.code = codeFor(r.pid); log(r, 'Dana', 'Sent the referral.'); log(r, 'Agent', 'Issued the patient a referral QR code. It holds only the referral number.'); log(r, 'Agent', `Sent to the ${SPEC} office by secure message with urgency ${r.urgency.toLowerCase()}. Delivery confirmed. Watching for receipt.`); agentTick(); done(); } }, icon('send', 'sm'), 'Send referral'));
+  const st = danaStatus(r);
+  const sub = r.step === 8 ? 'Nothing left to do.' : r.stalled ? 'You sent a nudge. The agent is still watching for receipt.' : r.noBook ? 'You sent a reminder. The agent is still watching for a booking.' : 'Nothing needs you. The agent will flag this referral if it stalls.';
+  return h('div', { class: 'next calm' }, what(r.step === 8 ? 'done' : 'clock', r.step === 8 ? 'Loop closed. Consult note is with Dr. Patel.' : st.text, sub));
+}
+
+function renderPCP(m) {
+  const refs = Object.values(S.refs).sort((a, b) => (needsDana(b) - needsDana(a)) || urgRank(b) - urgRank(a) || a.step - b.step);
+  const shown = S.filter === 'need' ? refs.filter(needsDana) : refs;
+  const r = S.refs[S.sel], p = PTS[r.pid];
+
+  const queue = h('section', { class: 'panel', 'aria-label': 'Referral queue' },
+    ph(h('span', {}, 'Referral queue'), h('span', { class: 'muted', style: 'margin-left:auto;font-weight:400;letter-spacing:0;text-transform:none' }, `${refs.length} to ${SPEC}`)),
+    h('div', { class: 'tabs', role: 'group', 'aria-label': 'Filter' },
+      h('button', { type: 'button', 'data-fk': 'f-need', 'aria-pressed': String(S.filter === 'need'), onclick: () => { S.filter = 'need'; render(); } }, `Needs you (${refs.filter(needsDana).length})`),
+      h('button', { type: 'button', 'data-fk': 'f-all', 'aria-pressed': String(S.filter === 'all'), onclick: () => { S.filter = 'all'; render(); } }, `All (${refs.length})`)),
+    shown.length ? h('ul', { class: 'queue' }, shown.map(x => {
+      const st = danaStatus(x), q = PTS[x.pid];
+      return h('li', {}, h('button', { type: 'button', 'data-fk': 'q-' + x.pid, 'aria-current': String(x.pid === S.sel), onclick: () => { S.sel = x.pid; render(); } },
+        h('span', { class: 'nm' }, q.name),
+        h('span', { class: 'st' + (st.need ? ' need' : '') }, st.need || st.warn ? icon(st.warn ? 'alert' : 'bell', 'sm') : (x.step === 8 ? icon('done', 'sm') : null), st.text),
+        h('span', { class: 'sub' }, `${q.age} ${q.sex[0].toUpperCase()}`, h('span', { class: 'mono' }, q.headline.split(' · ')[1] || ''), `· ${STEPS[x.step].label}`, urgChip(x.urgency))));
+    })) : h('p', { class: 'pb empty' }, 'Nothing needs you right now. Every referral is moving or waiting on someone else.'));
+
+  const editable = r.step === 0;
+  const canApprove = () => r.reviewed && r.pcpOk && r.consent && r.packet.trim() && !blockers(r.packet).length;
+  const refreshApprove = () => {
+    const b = blockers(r.packet), why = $('blockWhy'), btn = $('approve'); if (!btn) return;
+    btn.disabled = !canApprove();
+    why.textContent = !r.packet.trim() ? 'Create a draft first.' : b.length ? 'Before you can approve: ' + b.join('; ') + '.' : '';
+  };
+  const packet = h('section', { class: 'panel', 'aria-label': 'Referral packet' },
+    ph(icon('file', 'sm'), 'Referral packet',
+      r.packetBy === 'claude' ? h('span', { class: 'ai', style: 'margin-left:auto;text-transform:none;letter-spacing:0' }, icon('sparkles', 'sm'), 'AI-drafted by Claude')
+        : r.packetBy === 'template' ? h('span', { class: 'chip', style: 'margin-left:auto' }, 'Template, not AI') : null),
+    h('div', { class: 'pb stack' },
+      editable ? h('div', { class: 'row' },
+        h('button', { class: 'btn ghost', type: 'button', id: 'draftBtn', onclick: () => draftWithClaude(r) }, icon('sparkles', 'sm'), LIVE ? (r.packet ? 'Redraft with Claude' : 'Draft with Claude') : 'Create template draft'),
+        h('span', { class: 'muted', id: 'draftStatus', style: 'font-size:13px' }, r.packet ? 'Edit anything before approving.' : (LIVE ? 'Claude drafts from the chart extract and lists what it could not confirm.' : 'No API key is set on the server, so this creates a labeled template from chart fields.'))) : null,
+      editable ? h('div', { style: 'max-width:360px' }, h('label', { class: 'lbl', for: 'urgency' }, 'Urgency (from Dr. Patel’s order; goes to the Endo office with the referral)'),
+        h('select', { id: 'urgency', 'data-fk': 'urgency', onchange: e => { r.urgency = e.target.value; r.pcpOk = false; log(r, 'Dana', `Set urgency to ${r.urgency.toLowerCase()} on Dr. Patel's instruction.`); done(); } }, URG.map(u => h('option', { value: u, selected: u === r.urgency }, u)))) : null,
+      h('div', {}, h('label', { class: 'lbl', for: 'packet' }, editable ? 'Draft (editable)' : r.step >= 3 ? 'Sent packet' : 'Approved packet'),
+        h('textarea', { id: 'packet', spellcheck: 'false', readonly: !editable, oninput: e => {
+          r.packet = e.target.value; r.reviewed = r.pcpOk = false;
+          for (const id of ['reviewed', 'pcpOk']) { const c = $(id); if (c) c.checked = false; }
+          save(); refreshApprove(); } }, r.packet)),
+      editable && r.packet.trim() ? followUps(r) : null,
+      editable ? h('div', { class: 'stack', style: 'gap:4px' },
+        h('label', { class: 'check' }, h('input', { type: 'checkbox', id: 'reviewed', checked: !!r.reviewed, onchange: e => { r.reviewed = e.target.checked; save(); refreshApprove(); } }), h('span', {}, 'I reviewed this draft.')),
+        h('label', { class: 'check' }, h('input', { type: 'checkbox', id: 'pcpOk', checked: !!r.pcpOk, onchange: e => { r.pcpOk = e.target.checked; save(); refreshApprove(); } }), h('span', {}, 'Dr. Patel confirmed the clinical question and the urgency.')),
+        h('label', { class: 'check' }, h('input', { type: 'checkbox', id: 'consent', checked: !!r.consent, onchange: e => { r.consent = e.target.checked; if (r.consent) log(r, 'Dana', 'Recorded that the patient agreed to the referral and to sharing records.'); save(); refreshApprove(); } }), h('span', {}, 'The patient agreed to the referral and to sharing records with the specialist.')),
+        h('p', { class: 'why', id: 'blockWhy', role: 'status' }),
+        h('div', { style: 'margin-top:8px' }, h('button', { class: 'btn', type: 'button', id: 'approve', 'data-primary': true, disabled: true, onclick: () => { r.packet = r.packet.replace('[TEMPLATE DRAFT:', '[TEMPLATE:'); advance(r, 1); log(r, 'Dana', `Reviewed and approved the packet${r.packetBy === 'claude' ? ' (AI-drafted, edited where needed)' : ''}.`); done(); } }, icon('check', 'sm'), 'Approve packet'))) : null));
+
+  const head = h('div', { class: 'detail-head' },
+    h('div', {}, h('p', { class: 'eyebrow' }, `${stageOf(r)} · Referral to ${r.office} · ordered by Dr. Patel ${fmt(r.at[0])}`),
+      h('h1', { tabindex: '-1' }, p.name), h('p', {}, `${p.age}-year-old ${p.sex} · `, h('span', { class: 'mono' }, p.headline.split(' · ')[1] || ''), ` · Urgency ${r.urgency.toLowerCase()} (PCP)`, r.priority && r.priority !== r.urgency ? ` · Endo triage: ${r.priority.toLowerCase()}` : '', r.refNo ? ` · HMO ref ${r.refNo}` : '')),
+    stamp(r, freshKey(r, 'pcp'), 'pcp'));
+
+  m.append(h('div', { class: 'pcp' }, queue,
+    h('div', { class: 'stack' },
+      h('section', { class: 'panel' }, h('div', { class: 'pb stack' }, head, stepper(r), nextCard(r), r.reply ? replyView(r) : null)),
+      h('div', { class: 'split' }, packet,
+        h('section', { class: 'panel', 'aria-label': 'Activity' }, ph('Activity'), h('div', { class: 'pb' }, logList(r)))))));
+  refreshApprove();
+}
+
+function renderEndo(m) {
+  const visible = Object.values(S.refs).filter(r => r.step >= 3);
+  const cols = [['Incoming', r => r.step === 3], ['Received', r => r.step === 4], ['Accepted', r => r.step === 5], ['Scheduled', r => r.step === 6 || r.step === 7], ['Closed', r => r.step === 8]];
+  if (!S.endoSel || !S.refs[S.endoSel] || S.refs[S.endoSel].step < 3) S.endoSel = (visible.find(endoNeeds) || visible[0])?.pid;
+  const board = h('section', { 'aria-label': 'Referrals board' },
+    h('div', { class: 'board' }, cols.map(([name, test]) => {
+      const items = visible.filter(test).sort((a, b) => urgRank(b) - urgRank(a));
+      return h('div', { class: 'col' }, h('h2', {}, name, h('span', { class: 'mono' }, items.length)),
+        items.length ? h('ul', {}, items.map(r => { const q = PTS[r.pid]; return h('li', {}, h('button', { class: 'card', type: 'button', 'data-fk': 'c-' + r.pid, 'aria-current': String(r.pid === S.endoSel), onclick: () => { S.endoSel = r.pid; render(); } },
+          h('b', {}, q.name), h('span', {}, `${q.age} ${q.sex[0].toUpperCase()} · `, h('span', { class: 'mono' }, q.headline.split(' · ')[1] || '')),
+          urgChip(r.priority || r.urgency, 'align-self:flex-start'),
+          r.step === 3 && r.nudged ? h('span', { class: 'chip warn', style: 'align-self:flex-start' }, 'PCP office nudged') : null,
+          r.declined ? h('span', { class: 'chip warn', style: 'align-self:flex-start' }, 'Declined') : null,
+          infoOpen(r) ? h('span', { class: 'chip', style: 'align-self:flex-start' }, 'Waiting on PCP office') : r.info ? h('span', { class: 'chip accent', style: 'align-self:flex-start' }, 'PCP office replied') : null,
+          r.step === 3 ? h('span', {}, `Sent ${fmt(r.at[3])}`) : r.appt && r.step < 8 ? h('span', {}, `Visit ${fmt(r.appt)}`) : null)); }))
+          : h('p', { class: 'empty', style: 'padding:10px 12px' }, 'None right now.'));
+    })));
+
+  let side;
+  const r = S.refs[S.endoSel];
+  if (!r) side = h('section', { class: 'panel' }, h('p', { class: 'pb empty' }, 'No referrals have been sent to this office yet.'));
+  else {
+    const q = PTS[r.pid];
+    let action;
+    if (r.declined) action = h('span', { class: 'chip warn' }, icon('alert', 'sm'), 'Declined · returned to the PCP office');
+    else if (r.step === 3) action = h('button', { class: 'btn', type: 'button', 'data-primary': true, onclick: () => { advance(r, 4); r.stalled = false; log(r, 'Endo office', 'Confirmed receipt.'); done(); } }, icon('inbox', 'sm'), 'Confirm receipt');
+    else if (r.step === 4) {
+      const ask = h('input', { type: 'text', id: 'infoAsk', placeholder: 'e.g. Please send the latest lipid panel' });
+      action = h('div', { class: 'stack', style: 'gap:12px' },
+        h('fieldset', { style: 'border:0;margin:0;padding:0' }, h('legend', { class: 'lbl' }, `Triage priority · Dr. Patel sent this as ${r.urgency.toLowerCase()}; Dr. Lee confirms or changes it`),
+          h('div', { class: 'radio' }, URG.map(v => h('label', {}, h('input', { type: 'radio', name: 'prio', value: v, checked: v === r.urgency }), v)))),
+        h('div', {}, h('button', { class: 'btn', type: 'button', 'data-primary': true, onclick: () => {
+          const v = document.querySelector('input[name=prio]:checked').value; r.priority = v; advance(r, 5);
+          r.slots = [...new Set(SLOT_GAPS[v].map(g => weekday(S.day + g)))];
+          log(r, 'Dr. Lee', v === r.urgency ? `Accepted. Kept the PCP's urgency: ${v.toLowerCase()}.` : `Accepted. Changed triage priority from the PCP's ${r.urgency.toLowerCase()} to ${v.toLowerCase()}.`); log(r, 'Agent', `Offered the patient ${r.slots.length} open slots.`); done(); } }, icon('check', 'sm'), 'Accept referral')),
+        declineRow(r),
+        infoOpen(r) ? h('p', { class: 'muted', style: 'font-size:13px;margin:0' }, 'Waiting on Dr. Patel’s office to answer your request.')
+          : r.info ? null : h('div', { style: 'border-top:1px solid var(--line);padding-top:12px' }, h('label', { class: 'lbl', for: 'infoAsk' }, 'Missing something? Ask the PCP office'), h('div', { class: 'row', style: 'flex-wrap:nowrap' }, ask,
+            h('button', { class: 'btn ghost', type: 'button', onclick: () => { const t = ask.value.trim(); if (!t) { ask.focus(); return; } r.info = { ask: t, answer: '' }; log(r, 'Endo office', `Asked the PCP office for more information: ${t}`); done(); } }, 'Request'))));
+    }
+    else if (r.step === 5) action = h('div', { class: 'stack', style: 'gap:8px' }, h('span', { class: 'muted', style: 'font-size:13px' }, `Offered ${r.slots.map(fmt).join(', ')}. Waiting for the patient to pick.`),
+      h('div', {}, h('button', { class: 'btn ghost', type: 'button', 'data-primary': true, onclick: () => { book(r, r.slots[0], 'Endo office'); } }, icon('calendar', 'sm'), `Book ${fmt(r.slots[0])} by phone`)));
+    else if (r.step <= 7 && r.missed) action = h('span', { class: 'chip warn' }, icon('alert', 'sm'), 'Patient did not arrive · PCP office alerted');
+    else if (r.step <= 7 && !r.checkedIn) action = h('div', { class: 'stack', style: 'gap:8px' },
+      h('span', { class: 'muted', style: 'font-size:13px' }, `Visit ${fmt(r.appt)}. At arrival, scan the patient's QR code (${r.code}) to open this record.`),
+      h('div', {}, h('button', { class: 'btn', type: 'button', 'data-primary': true, onclick: () => {
+        const day = Math.max(r.appt, S.day); if (r.step === 6) advance(r, 7, day); r.checkedIn = day;
+        log(r, 'Endo office', `Scanned QR code ${r.code}. Patient checked in.`, day); done(); } }, icon('check', 'sm'), 'Scan QR code + check in')));
+    else if (r.step <= 7) action = replyForm(r);
+    else action = h('span', { class: 'chip ok' }, icon('done', 'sm'), 'Consult note sent to the PCP');
+
+    side = h('section', { class: 'panel', 'aria-label': 'Referral detail' },
+      ph('Referral detail'),
+      h('div', { class: 'pb stack' },
+        h('div', { class: 'detail-head' }, h('div', {}, h('p', { class: 'eyebrow' }, `From Dr. Patel's office · to ${r.office} · ${r.refNo || 'no HMO ref'}`), h('h1', { style: 'font-size:22px', tabindex: '-1' }, q.name),
+          h('p', {}, `${q.age}-year-old ${q.sex} · Urgency from Dr. Patel: `, h('b', {}, r.urgency), r.priority && r.priority !== r.urgency ? ` · Triaged as ${r.priority.toLowerCase()}` : '')), stamp(r, freshKey(r, 'endo'), 'endo')),
+        r.step === 3 && r.nudged ? h('div', {}, h('p', { class: 'lbl' }, 'Message from Dr. Patel’s office'), h('blockquote', { class: 'quote' }, r.nudgeText)) : null,
+        r.info ? h('div', {}, h('p', { class: 'lbl' }, 'You asked'), h('blockquote', { class: 'quote' }, r.info.ask),
+          r.info.answer ? h('div', { style: 'margin-top:8px' }, h('p', { class: 'lbl' }, 'Dr. Patel’s office replied'), h('blockquote', { class: 'quote' }, r.info.answer)) : null) : null,
+        action,
+        h('div', {}, h('div', { class: 'row', style: 'justify-content:space-between;margin-bottom:6px' }, h('span', { class: 'lbl', style: 'margin:0' }, 'Referral packet'),
+          r.packetBy === 'claude' ? h('span', { class: 'ai' }, icon('sparkles', 'sm'), 'AI-drafted, approved by PCP office') : h('span', { class: 'chip' }, 'Approved by PCP office')),
+          h('pre', { class: 'packet-view', tabindex: '0', 'aria-label': 'Referral packet text' }, r.packet || '(no packet)'))));
+  }
+  m.append(h('div', { class: 'endo' }, board, side));
+}
+
+function book(r, day, who) {
+  r.appt = day; r.noBook = false; advance(r, 6); log(r, who, `Booked ${fmtLong(day)}.`); done();
+}
+
+function renderPatient(m) {
+  const r = S.refs[S.ptSel], p = PTS[r.pid];
+  const finished = r.step === 8;
+  const tl = h('ol', { class: 'tl', 'aria-label': 'Your referral steps' }, STEPS.map((s, i) => {
+    const cls = i < r.step || finished ? 'done' : i === r.step ? 'now' : '';
+    return h('li', { class: cls, 'aria-current': i === r.step ? 'step' : null }, h('b', {}, s.tl || s.pt),
+      h('span', { class: 'meta' }, r.at[i] != null ? fmt(r.at[i]) : ''));
+  }));
+  let act = null;
+  if (r.step === 5) act = h('div', {}, h('p', { class: 'eyebrow' }, 'Open times'),
+    h('div', { class: 'slots' }, r.slots.map((d, i) => h('button', { class: 'btn quiet', type: 'button', 'data-primary': i === 0, onclick: () => book(r, d, 'Patient') }, h('span', {}, fmtLong(d)), icon('calendar', 'sm')))));
+  if (r.step >= 6 && r.step < 8) act = h('div', { class: 'stack', style: 'gap:10px;align-items:flex-start' },
+    h('p', { class: 'chip accent', style: 'font-size:14px;padding:6px 12px;margin:0' }, icon('calendar', 'sm'), `${fmtLong(r.appt)} · ${r.office}`),
+    !r.checkedIn && !r.missed ? h('button', { class: 'btn quiet', type: 'button', id: 'otherTime', onclick: () => { log(r, 'Patient', `Asked for a different time than ${fmt(r.appt)}.`); reoffer(r, 'Patient asked for another time.'); } }, 'Ask for another time') : null);
+  const told = patientStatus(r);
+
+  const who = x => x.me ? 'You' : x.route === 'staff' ? 'Dana · Dr. Patel’s office' : x.route === 'nurse' ? 'Care team · sent to a nurse' : x.ai ? 'Automatic answer (AI) · based on your referral status' : 'Automatic answer · based on your referral status';
+  const msgList = h('ul', { class: 'msgs' }, r.msgs.map(x => h('li', { class: x.me ? 'me' : 'them' }, x.text, h('small', {}, who(x)))));
+  const input = h('input', { type: 'text', id: 'ask', placeholder: 'e.g. Did the office get my referral?' });
+  const send = h('button', { class: 'btn', type: 'button', onclick: async () => {
+    const t = input.value.trim(); if (!t) { input.focus(); return; }
+    r.msgs.push({ me: true, text: t }); save(); render(); $('ask').disabled = true;
+    const out = await routeMessage(r, t); r.msgs.push({ me: false, text: out.reply, route: out.route, ai: out.ai });
+    pendingSay = 'Reply: ' + out.reply; save(); render(); $('ask')?.focus({ preventScroll: true });
+  } }, 'Send');
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') send.click(); });
+
+  const phone = h('section', { class: 'phone', 'aria-label': 'Patient view' },
+    h('div', { class: 'hello' }, h('span', {}, `Hi ${first(p.name)}`)),
+    h('div', { style: 'margin-top:18px' }, stamp(r, freshKey(r, 'patient'), 'patient')),
+    h('h1', { tabindex: '-1' }, told.pt),
+    h('p', { class: 'lead' }, told.ptText),
+    act, r.code && r.step < 8 ? qrCard(r) : null, tl,
+    h('div', { style: 'border-top:1px solid var(--line);padding-top:16px;margin-top:4px' },
+      h('h2', { class: 'eyebrow' }, 'Questions about your referral'), msgList,
+      h('label', { class: 'lbl', for: 'ask' }, 'Message your care team'),
+      h('div', { class: 'row', style: 'flex-wrap:nowrap' }, input, send),
+      h('p', { class: 'muted', style: 'font-size:12px;margin:8px 0 0' }, 'Questions about your referral status get an automatic answer. Everything else goes to a nurse. This tracker never gives medical advice.')));
+
+  m.append(h('div', { class: 'pt-wrap' }, phone,
+    h('aside', { class: 'side-notes', 'aria-label': 'Presenter notes' },
+      h('p', { class: 'chip' }, 'For presenters · not part of the patient app'),
+      h('h2', {}, 'What the patient does not see'),
+      h('ul', {},
+        h('li', {}, 'Stalls. If the office is slow, the coordinator is alerted, not the patient.'),
+        h('li', {}, 'Payer details beyond "insurance approved".'),
+        h('li', {}, 'The packet itself. It goes clinician to clinician.')),
+      h('h2', {}, 'Where a person decides'),
+      h('ul', {},
+        h('li', {}, 'Dana reads and sends the packet, the payer request, every nudge and every reminder.'),
+        h('li', {}, 'Dr. Lee sets the priority.'),
+        h('li', {}, 'The patient picks the time.'),
+        h('li', {}, 'A nurse answers every health question, and every message the tracker is not sure about.')))));
+}
+
+function render() {
+  const m = $('main'), act = document.activeElement, inMain = m.contains(act), fk = act?.dataset?.fk;
+  m.textContent = '';
+  document.querySelectorAll('.personas button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.persona === S.persona)));
+  const dn = Object.values(S.refs).filter(needsDana).length, en = Object.values(S.refs).filter(endoNeeds).length;
+  $('pcpBadge').hidden = !dn; $('pcpBadge').textContent = dn; $('pcpBadge').setAttribute('aria-label', `${dn} need attention`);
+  $('endoBadge').hidden = !en; $('endoBadge').textContent = en; $('endoBadge').setAttribute('aria-label', `${en} need attention`);
+  $('ptName').textContent = PTS[S.ptSel].name;
+  $('today').textContent = fmt(S.day);
+  $('undoReset').hidden = !UNDO;
+  const pick = $('ptPick'); pick.textContent = '';
+  for (const x of Object.values(S.refs)) pick.append(h('option', { value: x.pid, selected: x.pid === S.ptSel }, PTS[x.pid].name));
+  ({ pcp: renderPCP, endo: renderEndo, patient: renderPatient })[S.persona](m);
+  /* Keep keyboard and screen-reader users where they were: same control if it still exists, else the next action, else the heading. */
+  if (inMain) (fk && m.querySelector(`[data-fk="${fk}"]`) || m.querySelector('[data-primary]:not(:disabled)') || m.querySelector('h1'))?.focus({ preventScroll: true });
+  if (pendingSay) { $('live').textContent = pendingSay; pendingSay = ''; }
+}
+function showMode() { $('claudeMode').textContent = LIVE ? `Claude: live (${MODEL})` : 'Claude: no API key on the server, template drafts only'; }
+
+function fromHash() { const v = location.hash.slice(1); if (S && VIEWS.includes(v) && v !== S.persona) { S.persona = v; lastStamp = ''; render(); } }
+window.addEventListener('hashchange', fromHash);
+document.querySelectorAll('.personas button').forEach(b => b.onclick = () => {
+  S.persona = b.dataset.persona; lastStamp = ''; history.replaceState(null, '', '#' + S.persona); save(); render();
+  $('main').querySelector('h1')?.focus({ preventScroll: true });
+});
+$('advance').onclick = () => { S.day++; agentTick(); pendingSay = pendingSay || `Demo day is now ${fmt(S.day)}.`; done(); };
+$('resetAll').onclick = () => { UNDO = JSON.stringify(S); const persona = S.persona; freshState(); S.persona = persona; pendingSay = 'Demo reset. Undo is available.'; done(); $('undoReset').focus(); };
+$('undoReset').onclick = () => { if (!UNDO) return; S = JSON.parse(UNDO); UNDO = null; pendingSay = 'Reset undone.'; done(); $('resetAll').focus(); };
+$('ptPick').onchange = e => { S.ptSel = e.target.value; done(); };
+
+fetch('/api/tracker/data').then(r => r.json()).then(d => {
+  DATA = d; for (const p of d.condition.patients) PTS[p.id] = p;
+  if (!load()) freshState();
+  const v = location.hash.slice(1); if (VIEWS.includes(v)) S.persona = v;
+  /* A scanned QR code opens the patient status page for that referral. */
+  const ref = new URLSearchParams(location.search).get('ref'), hit = ref && Object.values(S.refs).find(x => x.code === ref);
+  if (hit) { S.ptSel = hit.pid; S.persona = 'patient'; }
+  render();
+}).catch(() => { $('main').textContent = 'Could not load the patient data.'; });
+fetch('/api/health').then(r => r.json()).then(info => { LIVE = info.mode === 'live'; MODEL = info.model; showMode(); if (DATA) render(); }, () => showMode());
+</script>
+</body>
+</html>
