@@ -78,18 +78,36 @@ LANDING = """<!doctype html>
   a.card { display:block; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:20px; color:inherit; text-decoration:none; }
   a.card:hover, a.card:focus-visible { border-color:var(--accent); outline:none; }
   a.card b { display:block; font-size:1.15rem; margin-bottom:6px; color:var(--accent); }
+  .eyebrow { font-size:.85rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); }
+  h2 { font-size:1.15rem; margin:0 0 10px; }
+  .team { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:10px 24px; }
+  .team li { border-top:1px solid var(--line); padding-top:8px; }
+  .team b { display:block; }
+  .team span { color:var(--muted); font-size:.95rem; }
   .note { border-top:1px solid var(--line); padding-top:16px; color:var(--muted); font-size:.95rem; }
   .note a { color:var(--accent); }
 </style>
 </head>
 <body>
 <main>
+  <p class="eyebrow">Claude Digital Health Hack</p>
   <h1>Referral Tracker</h1>
   <p class="lede">Every handoff of a specialist referral writes to one shared record. The patient sees a plain status, each office sees its work queue, and an AI agent drafts the paperwork and flags stalls while people make every decision.</p>
   <div class="cards">
     <a class="card" href="tracker/"><b>Referral tracker</b>Follow one referral through six stages as the patient, the primary care office and the specialist office. Demo scenario: type 2 diabetes to endocrinology.</a>
     <a class="card" href="drafter/"><b>Referral note drafter</b>Pick a patient and a specialty, see the chart extract a specialist needs, and draft the referral note.</a>
   </div>
+  <section>
+    <h2>Team</h2>
+    <ul class="team">
+      <li><b>George Kapitan</b><span>Growth and Marketing</span></li>
+      <li><b>Melissa Nguyen</b><span>Solution Design and Branding</span></li>
+      <li><b>Nitchee Tangs, MD</b><span>Clinical Product Strategy</span></li>
+      <li><b>Frank Sheikh</b><span>AI Engineer</span></li>
+      <li><b>Xinyi Shi, MD</b><span>Evaluation</span></li>
+      <li><b>Claude Fable 5.2</b><span>Orchestrator (AI model)</span></li>
+    </ul>
+  </section>
   <p class="note">Hackathon prototype built at the Claude Digital Health Hack. All patients are synthetic (Synthea); no real patient data is used. Office, insurer and specialist actions are simulated, and what you do stays in your own browser. This public demo has no AI model behind it: drafts are labelled templates. Not for clinical use. Code: <a href="https://github.com/nitchakorn/ClaudeDigitalHealthHack">github.com/nitchakorn/ClaudeDigitalHealthHack</a></p>
 </main>
 </body>
