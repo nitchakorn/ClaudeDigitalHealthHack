@@ -107,7 +107,7 @@ LANDING = """<!doctype html>
     <a class="card" href="drafter/"><b>Referral note drafter</b>Pick a patient and a specialty, see the chart extract a specialist needs, and draft the referral note.</a>
   </div>
   <section>
-    <h2>Team</h2>
+    <h2>Team 3</h2>
     <ul class="team">
       <li><img src="team/george.jpg" alt="George Kapitan" width="64" height="64"><div><b>George Kapitan</b><span>Growth and Marketing</span><a href="https://www.linkedin.com/in/kapitgeo/" rel="noopener">LinkedIn</a></div></li>
       <li><img src="team/melissa.jpg" alt="Melissa Nguyen" width="64" height="64"><div><b>Melissa Nguyen</b><span>Solution Design and Branding</span><a href="https://www.linkedin.com/in/melissanguyennyc/" rel="noopener">LinkedIn</a></div></li>
