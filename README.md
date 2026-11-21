@@ -45,6 +45,16 @@ drafter. To use another port: set the `PORT` environment variable.
 The flow: **Draft note** writes the note from the chart, Claude then asks follow-up
 questions about the draft, and **Update note with answers** revises it.
 
+## Public demo
+
+A static copy runs at https://referral-notes.nitchakorn.workers.dev with no server and no
+AI model: drafts there are labelled templates. To rebuild and redeploy it:
+
+```
+npm run build:static
+cf deploy site
+```
+
 ## Going live
 
 Copy `.env.example` to `.env`, paste the key after `ANTHROPIC_API_KEY=`, and restart the

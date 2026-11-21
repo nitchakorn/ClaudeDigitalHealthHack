@@ -7,6 +7,7 @@ node_modules/
 
 # Generated
 site/
+.cloudflare/
 __pycache__/
 *.pyc
 npm-debug.log*
