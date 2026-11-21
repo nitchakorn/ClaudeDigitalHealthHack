@@ -6,6 +6,7 @@ node_modules/
 .venv/
 
 # Generated
+site/
 __pycache__/
 *.pyc
 npm-debug.log*

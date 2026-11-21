@@ -1,0 +1,1 @@
+{"id": "cardiac-7208c12f__sonnet__r0__j-haiku", "kind": "judge", "error": "judge output truncated", "at": "2026-11-21T14:10:11", "usage": {"input_tokens": 9732, "output_tokens": 16000, "cache_creation_input_tokens": 0, "cache_read_input_tokens": 0}, "cost_usd": 0.0089732}

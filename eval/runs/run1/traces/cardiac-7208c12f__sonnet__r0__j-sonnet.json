@@ -1,0 +1,230 @@
+{
+ "statements": [
+  {
+   "statement": "57-year-old man",
+   "source": "Chart: Patient: Bill Reynolds, 57-year-old male"
+  },
+  {
+   "statement": "Ischemic heart disease diagnosed 2022-09-03",
+   "source": "Chart: Ischemic heart disease (2022-09-03)"
+  },
+  {
+   "statement": "Coronary angiography 2022-09-21 and PCI 2022-09-24",
+   "source": "Chart: Angiography of coronary artery 2022-09-21; Percutaneous coronary intervention 2022-09-24"
+  },
+  {
+   "statement": "Has not seen cardiology since his stent",
+   "source": "PCP input: He has not seen cardiology since his stent"
+  },
+  {
+   "statement": "Three months of chest tightness on climbing two flights of stairs, settling within five minutes of rest, no pain at rest",
+   "source": "PCP input: Notes"
+  },
+  {
+   "statement": "Routine referral",
+   "source": "PCP input: Urgency: routine"
+  },
+  {
+   "statement": "Clinical question: stress testing or repeat angiography, and change in anti-anginal therapy",
+   "source": "PCP input: Clinical question"
+  },
+  {
+   "statement": "Abnormal cardiac/coronary imaging finding 2022-09-21",
+   "source": "Chart: Abnormal findings diagnostic imaging heart+coronary circulat (2022-09-21)"
+  },
+  {
+   "statement": "Angiography and stent details are not in the extract",
+   "source": "Chart: Imaging: None recorded; no report text"
+  },
+  {
+   "statement": "Kidney transplant 2023-08-14 after dialysis (2021-03-22 to 2023-09-04)",
+   "source": "Chart: Transplant of kidney 2023-08-14; Renal dialysis x122, 2021-03-22 to 2023-09-04 (dialysis end date is after the transplant, so 'after dialysis' is not fully supported)"
+  },
+  {
+   "statement": "On tacrolimus",
+   "source": "Chart: tacrolimus 1 MG ER [Envarsus] since 2026-07-06"
+  },
+  {
+   "statement": "Hypertension (1998), hyperlipidemia (2010), diabetic kidney disease with proteinuria, metabolic syndrome",
+   "source": "Chart: Essential hypertension (1998-01-19); Hyperlipidemia (2010-10-11); Disorder of kidney due to DM; Proteinuria due to type 2 DM; Metabolic syndrome X"
+  },
+  {
+   "statement": "Never smoked",
+   "source": "Chart: Tobacco smoking status: Never smoked tobacco 2026-07-06"
+  },
+  {
+   "statement": "No ED, inpatient or urgent care encounters in the last 24 months",
+   "source": "Chart: No emergency, inpatient or urgent care encounters"
+  },
+  {
+   "statement": "Medication list: metoprolol succinate 100 mg, clopidogrel 75 mg, amlodipine 2.5 mg, lisinopril 10 mg, HCTZ 25 mg, nitroglycerin 0.4 mg spray, simvastatin 20 mg (2022-09-10) and 10 mg (2025-12-18), tacrolimus ER 1 mg, Humulin 70/30, tramadol 50 mg",
+   "source": "Chart: Active medications"
+  },
+  {
+   "statement": "Metoprolol is daily",
+   "source": "Chart: 24 HR metoprolol succinate (24-hour formulation)"
+  },
+  {
+   "statement": "No allergies recorded",
+   "source": "Chart: No allergies recorded"
+  },
+  {
+   "statement": "No aspirin is listed",
+   "source": "Chart: active medication list has no aspirin"
+  },
+  {
+   "statement": "LDL 113.7 on 2025-12-18, 98.4 on 2024-12-18, 133.1 on 2021-12-07",
+   "source": "Chart: LDL cholesterol"
+  },
+  {
+   "statement": "HDL 42.1 and triglycerides 187.5 on 2025-12-18",
+   "source": "Chart: HDL; Triglycerides"
+  },
+  {
+   "statement": "BP 107/53 and HR 68 on 2026-07-06; systolic BP 92-107 since 2023",
+   "source": "Chart: Systolic BP, Diastolic BP, Heart rate"
+  },
+  {
+   "statement": "Creatinine 1.1, eGFR 124.7, potassium 4.6 on 2026-07-06; earlier creatinine 3.0 and eGFR 86.6 on 2025-12-18",
+   "source": "Chart: Creatinine, eGFR, Potassium"
+  },
+  {
+   "statement": "Earlier renal values fluctuate widely",
+   "source": "Chart: creatinine 2.9, 1.1, 3.4, 1.1, 3; eGFR 72.7, 157.5, 70.7, 94.5, 86.6"
+  },
+  {
+   "statement": "HbA1c 4.1% on 2026-07-06",
+   "source": "Chart: HbA1c"
+  },
+  {
+   "statement": "Hemoglobin 17.1 on 2023-12-18, latest on record",
+   "source": "Chart: Hemoglobin"
+  },
+  {
+   "statement": "Ejection fraction and cardiac imaging: none recorded",
+   "source": "Chart: Imaging None recorded; no EF in results"
+  },
+  {
+   "statement": "After PCI he was started on clopidogrel, beta blocker, statin and sublingual nitroglycerin spray",
+   "source": "Chart: started 2022-09-10 (before the angiography on 2022-09-21 and PCI on 2022-09-24); the chart lists the nitroglycerin as a mucosal spray"
+  },
+  {
+   "statement": "No stress testing, echocardiogram or other cardiac imaging recorded",
+   "source": "Chart: Imaging None recorded; procedures list has no stress test or echo"
+  },
+  {
+   "statement": "The current symptoms have not yet been worked up",
+   "source": "PCP input gives no workup; chart has none (reasonable inference)"
+  },
+  {
+   "statement": "Renal transplant on tacrolimus is relevant to drug interactions, contrast exposure and statin choice",
+   "source": "No source (the drug-relevance comment is the tool's own interpretation; transplant and tacrolimus are in the chart)"
+  },
+  {
+   "statement": "Insulin-treated diabetes (listed as prediabetes)",
+   "source": "Chart: Humulin 70/30 'for Prediabetes'; Prediabetes problem; Microalbuminuria due to type 2 DM"
+  },
+  {
+   "statement": "Anemia listed as a problem",
+   "source": "Chart: Anemia (1995-01-16)"
+  },
+  {
+   "statement": "Dependent drug abuse (onset 2018), chronic pain on tramadol, stress",
+   "source": "Chart: Dependent drug abuse (2018-07-27); Chronic pain; Stress; tramadol 50 mg (no indication recorded for tramadol, so the link to chronic pain is inferred)"
+  },
+  {
+   "statement": "The referral is labeled chronic heart failure",
+   "source": "no source"
+  },
+  {
+   "statement": "No heart failure diagnosis, ejection fraction or echocardiogram is recorded",
+   "source": "Chart: no heart failure on any problem list; no imaging"
+  },
+  {
+   "statement": "Duplicate simvastatin entries are both active",
+   "source": "Chart: Simvastatin 10 mg and 20 mg both active"
+  },
+  {
+   "statement": "Medication review is flagged as due",
+   "source": "Chart: Other findings: Medication review due"
+  },
+  {
+   "statement": "Most recent labs and vitals are from 2026-07-06 and lipids from 2025-12-18",
+   "source": "Chart: Results and vitals"
+  }
+ ],
+ "critical_failures": {
+  "F1": {
+   "verdict": "yes",
+   "note_quote": "The referral is labeled chronic heart failure, but no heart failure diagnosis, ejection fraction or echocardiogram is recorded.",
+   "source_quote": "no source (the chart has no heart failure problem and the PCP input never mentions heart failure or a referral label)",
+   "explanation": "The note says the referral is 'labeled chronic heart failure'. Neither the extract nor the PCP input contains this, so it is an invented detail that could mislead the specialist or be mistaken for a chart diagnosis."
+  },
+  "F2": {
+   "verdict": "no",
+   "note_quote": "",
+   "source_quote": "",
+   "explanation": "Current drugs and doses match the extract, no stopped drug is listed as current, and 'No allergies recorded' is correct. The duplicate simvastatin entries are shown and flagged."
+  },
+  "F3": {
+   "verdict": "no",
+   "note_quote": "",
+   "source_quote": "",
+   "explanation": "The lipid, BP, HR, creatinine, eGFR, potassium, HbA1c and hemoglobin values and dates all match the extract, and the renal fluctuation is described correctly."
+  },
+  "F4": {
+   "verdict": "no",
+   "note_quote": "",
+   "source_quote": "",
+   "explanation": "Urgency (routine), the clinical question and the symptom history are reproduced as the PCP entered them."
+  },
+  "F5": {
+   "verdict": "no",
+   "note_quote": "",
+   "source_quote": "",
+   "explanation": "Age, sex, cardiac and renal conditions match the chart."
+  },
+  "F6": {
+   "verdict": "no",
+   "note_quote": "",
+   "source_quote": "",
+   "explanation": "The antiplatelet, statin, beta blocker, ACE inhibitor, diuretic, tacrolimus, low BP, renal function and PCI history are all included. Nothing management-changing from the chart appears to be missing."
+  },
+  "F7": {
+   "verdict": "for clinician review",
+   "note_quote": "Kidney transplant 2023-08-14 after dialysis (2021-03-22 to 2023-09-04).",
+   "source_quote": "Renal dialysis: x122, 2021-03-22 to 2023-09-04; Transplant of kidney: 2023-08-14",
+   "explanation": "The chart records dialysis continuing about three weeks after the transplant date, but the note says 'after dialysis' and does not flag the overlap. Also, CKD stages 1-4 are marked resolved on 2023-08-14 while a CKD stage 4 encounter is dated 2023-09-04. The clinician should decide whether this is a real post-transplant dialysis course (for example delayed graft function) or a record artifact that needs flagging. The other conflicts (simvastatin duplicates, HbA1c versus insulin, renal fluctuation, anemia versus hemoglobin) are flagged."
+  }
+ },
+ "criteria": {
+  "C1": {
+   "score": 2,
+   "reason": "The note opens with why he is being sent (new exertional chest tightness, no cardiology follow-up since stent) and states the clinical question, with urgency."
+  },
+  "C2": {
+   "score": 2,
+   "reason": "It covers diagnoses with dates, PCI, no EF or imaging, cardiac drugs with gaps (no aspirin), BP and HR, lipids and glycemia, renal function and potassium, no recent acute encounters, and smoking."
+  },
+  "C3": {
+   "score": 1,
+   "reason": "Values carry dates and LDL has comparators, but trends are not stated as direction with first and latest values (LDL first value from 2017 omitted), and renal and BP trends are described only loosely."
+  },
+  "C4": {
+   "score": 2,
+   "reason": "The medication list matches the extract and highlights the missing aspirin, duplicate simvastatin, tacrolimus relevance and low BP on several antihypertensives."
+  },
+  "C5": {
+   "score": 2,
+   "reason": "It states angiography and PCI in September 2022, the drugs started, the absence of stress testing or echo, and that current symptoms are unworked, though the drug start dates precede the angiography."
+  },
+  "C6": {
+   "score": 2,
+   "reason": "The to-confirm list is specific and useful (exam, ECG, stent reports, simvastatin dose, aspirin, renal function, HbA1c inconsistency), but it carries the unsupported heart failure label and misses the dialysis/transplant date overlap."
+  },
+  "C7": {
+   "score": 2,
+   "reason": "It leaves out the dental, back and neck pain, and social items, and does not paste whole histories, though it includes a few marginal items such as anemia and stress."
+  }
+ }
+}

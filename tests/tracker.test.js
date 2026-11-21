@@ -15,10 +15,10 @@ async function until(fn, label, ms = 8000) {
   const vc = new VirtualConsole();
   vc.on("jsdomError", (e) => errors.push(String(e.message || e)));
   vc.on("error", (e) => errors.push(String(e)));
-  const dom = await JSDOM.fromURL(BASE + "/tracker", {
+  const dom = await JSDOM.fromURL(BASE + (process.env.TRACKER_PATH || "/tracker"), {
     runScripts: "dangerously", pretendToBeVisual: true, virtualConsole: vc,
     beforeParse(window) {
-      window.fetch = (url, opts) => fetch(new URL(url, BASE), opts);
+      window.fetch = (url, opts) => fetch(new URL(url, window.location.href), opts);
       window.TextDecoder = TextDecoder;
       window.Element.prototype.scrollIntoView = () => {};
     },

@@ -501,9 +501,13 @@ async function askFollowUps(r) {
   const status = $('askStatus'), btn = $('askBtn');
   btn.disabled = true; status.textContent = 'Reading the draft for gaps…';
   try {
-    const res = await fetch('/api/questions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(noteRequest(r, { draft: r.packet })) });
-    if (!res.ok) throw new Error((await res.json()).detail || 'The questions could not be loaded.');
-    r.questions = (await res.json()).questions.map(q => ({ question: q.question, why: q.why, answer: '' }));
+    let found = !LIVE && DATA.condition.fallback_questions;  // no model available: the standard questions
+    if (!found) {
+      const res = await fetch('/api/questions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(noteRequest(r, { draft: r.packet })) });
+      if (!res.ok) throw new Error((await res.json()).detail || 'The questions could not be loaded.');
+      found = (await res.json()).questions;
+    }
+    r.questions = found.map(q => ({ question: q.question, why: q.why, answer: '' }));
     log(r, 'Agent', r.questions.length ? `Asked Dana ${r.questions.length} follow-up question(s) about the draft.` : 'Found nothing more to ask about the draft.');
     done();
   } catch (e) { status.textContent = e.message; btn.disabled = false; }
@@ -605,7 +609,7 @@ function patientStatus(r) {
 function qrCard(r) {
   let box = null;
   try {
-    const q = qrcode(0, 'M'); q.addData(`${location.origin}/tracker?ref=${r.code}#patient`); q.make();
+    const q = qrcode(0, 'M'); q.addData(`${location.origin}${location.pathname}?ref=${r.code}#patient`); q.make();
     box = h('div', { class: 'qr', role: 'img', 'aria-label': 'QR code for referral ' + r.code }); box.innerHTML = q.createSvgTag(4, 0);
   } catch (e) { box = null; }  // QR library not loaded (offline): the printed code below still works
   return h('div', { class: 'row', style: 'gap:14px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:12px;margin:14px 0;flex-wrap:nowrap' }, box,

@@ -35,9 +35,14 @@ function dev() {
   run(venvPython, ["-m", "uvicorn", "app.main:app", "--reload", "--port", port]);
 }
 
-const task = { setup, dev }[process.argv[2]];
+function buildStatic() {
+  if (!fs.existsSync(venvPython)) setup();
+  run(venvPython, ["scripts/build_static.py"]);
+}
+
+const task = { setup, dev, static: buildStatic }[process.argv[2]];
 if (!task) {
-  console.error("Usage: node scripts/py.js <setup|dev>");
+  console.error("Usage: node scripts/py.js <setup|dev|static>");
   process.exit(1);
 }
 task();

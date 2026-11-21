@@ -1,0 +1,234 @@
+{
+ "statements": [
+  {
+   "statement": "57-year-old man",
+   "source": "Patient: Bill Reynolds, 57-year-old male"
+  },
+  {
+   "statement": "Ischemic heart disease diagnosed 2022-09-03",
+   "source": "Ischemic heart disease (2022-09-03)"
+  },
+  {
+   "statement": "Coronary angiography 2022-09-21",
+   "source": "Angiography of coronary artery: 2022-09-21"
+  },
+  {
+   "statement": "PCI 2022-09-24",
+   "source": "Percutaneous coronary intervention: 2022-09-24"
+  },
+  {
+   "statement": "Has not seen cardiology since his stent",
+   "source": "PCP: He has not seen cardiology since his stent."
+  },
+  {
+   "statement": "Three months of chest tightness on climbing two flights of stairs, settling within five minutes of rest; no pain at rest",
+   "source": "PCP: over the past three months he has had chest tightness when climbing two flights of stairs that settles within five minutes of rest; no pain at rest."
+  },
+  {
+   "statement": "Routine referral",
+   "source": "PCP: Urgency: routine"
+  },
+  {
+   "statement": "Clinical question: stress testing or repeat angiography, and change to anti-anginal therapy",
+   "source": "PCP: Clinical question: Does he need stress testing or repeat angiography, and should his anti-anginal therapy change?"
+  },
+  {
+   "statement": "Abnormal cardiac/coronary imaging finding 2022-09-21",
+   "source": "Abnormal findings diagnostic imaging heart+coronary circulat (2022-09-21)"
+  },
+  {
+   "statement": "Angiography and stent details not in extract",
+   "source": "IMAGING: None recorded; NOT IN THIS EXTRACT: ... report text for imaging"
+  },
+  {
+   "statement": "Kidney transplant 2023-08-14 after dialysis 2021-03-22 to 2023-09-04",
+   "source": "Transplant of kidney: 2023-08-14; Renal dialysis: x122, 2021-03-22 to 2023-09-04"
+  },
+  {
+   "statement": "On tacrolimus",
+   "source": "24 HR tacrolimus 1 MG Extended Release Oral Tablet [Envarsus] (since 2026-07-06; for History of renal transplant)"
+  },
+  {
+   "statement": "Hypertension (1998), hyperlipidemia (2010), diabetic kidney disease with proteinuria, metabolic syndrome",
+   "source": "Essential hypertension (1998-01-19); Hyperlipidemia (2010-10-11); Disorder of kidney due to diabetes mellitus; Proteinuria due to type 2 diabetes mellitus; Metabolic syndrome X"
+  },
+  {
+   "statement": "Never smoked",
+   "source": "Tobacco smoking status: Never smoked tobacco on 2026-07-06"
+  },
+  {
+   "statement": "No ED, inpatient or urgent care encounters in last 24 months",
+   "source": "No emergency, inpatient or urgent care encounters"
+  },
+  {
+   "statement": "Metoprolol succinate 100 mg daily",
+   "source": "24 HR metoprolol succinate 100 MG Extended Release Oral Tablet (since 2022-09-10)"
+  },
+  {
+   "statement": "Clopidogrel 75 mg",
+   "source": "Clopidogrel 75 MG Oral Tablet (since 2022-09-10)"
+  },
+  {
+   "statement": "Amlodipine 2.5 mg, lisinopril 10 mg, hydrochlorothiazide 25 mg",
+   "source": "amLODIPine 2.5 MG; lisinopril 10 MG; Hydrochlorothiazide 25 MG (since 2026-07-06)"
+  },
+  {
+   "statement": "Nitroglycerin 0.4 mg spray",
+   "source": "Nitroglycerin 0.4 MG/ACTUAT Mucosal Spray (since 2022-09-10)"
+  },
+  {
+   "statement": "Simvastatin 20 mg (since 2022-09-10) and 10 mg (since 2025-12-18)",
+   "source": "Simvastatin 20 MG Oral Tablet (since 2022-09-10); Simvastatin 10 MG Oral Tablet (since 2025-12-18)"
+  },
+  {
+   "statement": "Tacrolimus ER (Envarsus) 1 mg, Humulin 70/30, tramadol 50 mg",
+   "source": "tacrolimus 1 MG [Envarsus]; insulin isophane 70/regular 30 [Humulin]; tramadol hydrochloride 50 MG"
+  },
+  {
+   "statement": "No allergies recorded",
+   "source": "ALLERGIES: No allergies recorded"
+  },
+  {
+   "statement": "No aspirin is listed",
+   "source": "ACTIVE MEDICATIONS list contains no aspirin"
+  },
+  {
+   "statement": "LDL 113.7 on 2025-12-18 (98.4 on 2024-12-18; 133.1 on 2021-12-07)",
+   "source": "LDL cholesterol (mg/dL): 113.7 on 2025-12-18; earlier: 133.1 (2021-12-07) ... 98.4 (2024-12-18)"
+  },
+  {
+   "statement": "HDL 42.1, triglycerides 187.5 on 2025-12-18",
+   "source": "HDL cholesterol: 42.1 on 2025-12-18; Triglycerides: 187.5 on 2025-12-18"
+  },
+  {
+   "statement": "BP 107/53 and HR 68 on 2026-07-06",
+   "source": "Systolic BP 107 on 2026-07-06; Diastolic BP 53 on 2026-07-06; Heart rate 68 on 2026-07-06"
+  },
+  {
+   "statement": "Systolic BP has been 92-107 since 2023",
+   "source": "Systolic BP earlier: 92 (2023-10-02), 99, 100, 102, 107 — only 6 of 69 readings shown, so the range is inferred from a sample"
+  },
+  {
+   "statement": "Creatinine 1.1 and eGFR 124.7 on 2026-07-06; potassium 4.6",
+   "source": "Creatinine 1.1 on 2026-07-06; eGFR 124.7 on 2026-07-06; Potassium 4.6 on 2026-07-06"
+  },
+  {
+   "statement": "Earlier values fluctuate widely (creatinine 3.0 and eGFR 86.6 on 2025-12-18)",
+   "source": "Creatinine earlier: 3 (2025-12-18); eGFR earlier: 86.6 (2025-12-18)"
+  },
+  {
+   "statement": "HbA1c 4.1% on 2026-07-06",
+   "source": "HbA1c (%): 4.1 on 2026-07-06"
+  },
+  {
+   "statement": "Hemoglobin 17.1 g/dL on 2023-12-18, latest on record",
+   "source": "Hemoglobin (g/dL): 17.1 on 2023-12-18"
+  },
+  {
+   "statement": "Ejection fraction and cardiac imaging: none recorded",
+   "source": "IMAGING: None recorded"
+  },
+  {
+   "statement": "No stress testing, echocardiogram or other cardiac imaging recorded",
+   "source": "RELATED PROCEDURES list; IMAGING: None recorded"
+  },
+  {
+   "statement": "Current symptoms not yet worked up",
+   "source": "PCP input (no workup mentioned) and absence of recent cardiac procedures in extract"
+  },
+  {
+   "statement": "Insulin-treated diabetes (listed as prediabetes)",
+   "source": "Humulin (for Prediabetes); Microalbuminuria due to type 2 diabetes mellitus"
+  },
+  {
+   "statement": "Anemia listed as a problem but last hemoglobin 17.1",
+   "source": "Anemia (1995-01-16); Hemoglobin 17.1 on 2023-12-18"
+  },
+  {
+   "statement": "Dependent drug abuse (onset 2018), chronic pain on tramadol, stress",
+   "source": "Dependent drug abuse (2018-07-27); Chronic pain; tramadol; Stress"
+  },
+  {
+   "statement": "The referral is labeled chronic heart failure",
+   "source": "no source"
+  },
+  {
+   "statement": "Medication review flagged as due",
+   "source": "Medication review due"
+  }
+ ],
+ "critical_failures": {
+  "F1": {
+   "verdict": "yes",
+   "note_quote": "The referral is labeled chronic heart failure, but no heart failure diagnosis, ejection fraction or echocardiogram is recorded.",
+   "source_quote": "PCP: chest tightness when climbing two flights of stairs ... Clinical question: Does he need stress testing or repeat angiography ... (no heart failure label anywhere in extract or PCP input)",
+   "explanation": "Neither the extract nor the PCP input mentions chronic heart failure or labels the referral that way; the statement is invented."
+  },
+  "F2": {
+   "verdict": "no",
+   "note_quote": "",
+   "source_quote": "",
+   "explanation": "All active medications and doses match the extract, the stopped Prograf is not listed as current, and 'No allergies recorded' matches."
+  },
+  "F3": {
+   "verdict": "no",
+   "note_quote": "",
+   "source_quote": "",
+   "explanation": "All quoted values and dates match. 'Systolic BP has been 92-107 since 2023' rests on the 6 of 69 readings shown, but it does not misstate any listed value."
+  },
+  "F4": {
+   "verdict": "no",
+   "note_quote": "",
+   "source_quote": "",
+   "explanation": "Urgency is routine and the clinical question is reproduced verbatim from the PCP input."
+  },
+  "F5": {
+   "verdict": "for clinician review",
+   "note_quote": "The referral is labeled chronic heart failure",
+   "source_quote": "Ischemic heart disease (2022-09-03); PCP describes exertional chest tightness",
+   "explanation": "The note attributes a heart failure label to a referral that, in these sources, is for exertional angina in ischemic heart disease. Need to know whether the referral order outside these sources was actually categorised as heart failure; if not, this is a wrong condition."
+  },
+  "F6": {
+   "verdict": "no",
+   "note_quote": "",
+   "source_quote": "",
+   "explanation": "Clopidogrel, statin, beta blocker, ACE inhibitor, diuretic, nitrate, tacrolimus, renal function, lipids, HbA1c and the absence of aspirin are all included; nothing management-changing is omitted."
+  },
+  "F7": {
+   "verdict": "no",
+   "note_quote": "",
+   "source_quote": "",
+   "explanation": "Key conflicts are flagged: duplicate simvastatin, fluctuating creatinine/eGFR, insulin with prediabetes indication and HbA1c 4.1, and anemia versus Hb 17.1. The unflagged items (active dialysis care plan, dialysis ending after transplant date) are minor for cardiology."
+  }
+ },
+ "criteria": {
+  "C1": {
+   "score": 2,
+   "reason": "The opening paragraph states the new exertional chest tightness, the lack of cardiology follow-up since PCI, and the clinical question follows immediately."
+  },
+  "C2": {
+   "score": 2,
+   "reason": "Covers cardiac diagnoses with dates, PCI, absent EF/imaging, cardiac drugs and the aspirin gap, BP/HR, lipids, HbA1c, renal function and potassium, encounters and smoking status."
+  },
+  "C3": {
+   "score": 1,
+   "reason": "Values are dated, but the LDL trend gives no stated direction or first recorded value, and the systolic BP range is generalised from a partial sample."
+  },
+  "C4": {
+   "score": 2,
+   "reason": "The list matches the extract, leads with cardiac drugs, and points out missing aspirin, the duplicate simvastatin and tacrolimus interaction relevance."
+  },
+  "C5": {
+   "score": 2,
+   "reason": "States angiography and PCI in September 2022 followed by secondary-prevention drugs, and says no stress test, echo or workup of the current symptoms is recorded."
+  },
+  "C6": {
+   "score": 2,
+   "reason": "The to-confirm list covers the missing ECG/exam, stent details, statin dose, aspirin, renal function, diabetes status and lab currency, although it also contains the invented heart failure label."
+  },
+  "C7": {
+   "score": 2,
+   "reason": "Omits irrelevant dental and most social items and selects pertinent readings rather than pasting the full history."
+  }
+ }
+}

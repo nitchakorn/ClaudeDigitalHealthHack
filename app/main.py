@@ -125,7 +125,8 @@ def tracker_data() -> dict:
             "results": [[r["label"], r["latest"][1], r["latest"][0]] for r in e["results"][:8]],
         })
     return {"as_of": chart.today.isoformat(),
-            "condition": {"key": key, "label": cfg["label"], "specialty": cfg["specialty"], "patients": patients}}
+            "condition": {"key": key, "label": cfg["label"], "specialty": cfg["specialty"], "patients": patients,
+                          "fallback_questions": [{"question": q, "why": w} for q, w in llm.FALLBACK_QUESTIONS[key]]}}
 
 
 @app.post("/api/tracker/message")
