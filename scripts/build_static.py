@@ -107,7 +107,7 @@ LANDING = """<!doctype html>
       <li><img src="team/melissa.jpg" alt="Melissa Nguyen" width="64" height="64"><div><b>Melissa Nguyen</b><span>Solution Design and Branding</span><a href="https://www.linkedin.com/in/melissanguyennyc/" rel="noopener">LinkedIn</a></div></li>
       <li><img src="team/nitchee.png" alt="Nitchee Tangs, MD" width="64" height="64"><div><b>Nitchee Tangs, MD</b><span>Clinical Product Strategy</span><a href="https://www.linkedin.com/in/nitchakorn/" rel="noopener">LinkedIn</a></div></li>
       <li><img src="team/frank.jpg" alt="Frank Sheikh" width="64" height="64"><div><b>Frank Sheikh</b><span>AI Engineer</span><a href="https://www.linkedin.com/in/franksheikh/" rel="noopener">LinkedIn</a></div></li>
-      <li><img src="team/xinyi.webp" alt="Xinyi Shi, MD" width="64" height="64"><div><b>Xinyi Shi, MD</b><span>Evaluation</span></div></li>
+      <li><img src="team/xinyi.webp" alt="Xinyi Shi, MD" width="64" height="64"><div><b>Xinyi Shi, MD</b><span>Evaluation</span><a href="https://www.linkedin.com/in/xinyi-shi-8a2086342/" rel="noopener">LinkedIn</a></div></li>
       <li><img class="mark" src="team/claude.svg" alt="Claude" width="64" height="64"><div><b>Claude Fable 5.2</b><span>Orchestrator (AI model)</span></div></li>
     </ul>
   </section>
