@@ -84,6 +84,11 @@ LANDING = """<!doctype html>
   a.card { display:block; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:20px; color:inherit; text-decoration:none; }
   a.card:hover, a.card:focus-visible { border-color:var(--accent); outline:none; }
   a.card b { display:block; font-size:1.15rem; margin-bottom:6px; color:var(--accent); }
+  .live { background:var(--panel); border:1px dashed var(--accent); border-radius:10px; padding:18px 20px; display:flex; flex-direction:column; gap:8px; }
+  .live h2 { margin:0; }
+  .live ol { margin:0; padding-left:20px; display:flex; flex-direction:column; gap:4px; }
+  .live a { color:var(--accent); overflow-wrap:anywhere; }
+  .live .when { color:var(--muted); font-size:.95rem; }
   .eyebrow { font-size:.85rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); }
   h2 { font-size:1.15rem; margin:0 0 10px; }
   .team { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:10px 24px; }
@@ -106,6 +111,17 @@ LANDING = """<!doctype html>
     <a class="card" href="tracker/"><b>Referral tracker</b>Follow one referral through six stages as the patient, the primary care office and the specialist office. Demo scenario: type 2 diabetes to endocrinology.</a>
     <a class="card" href="drafter/"><b>Referral note drafter</b>Pick a patient and a specialty, see the chart extract a specialist needs, and draft the referral note.</a>
   </div>
+  <section class="live">
+    <h2>Live AI demo, by arrangement</h2>
+    <p class="when">This version runs the real model inside a mock record system on a teammate&rsquo;s computer, so it is only up when we switch it on. To see it, coordinate with us first: message any of us on LinkedIn (links under Team 3 below) and we will set a time.</p>
+    <ol>
+      <li>Open <a href="https://flaxseed-recital-remnant.ngrok-free.dev/ehr/login?next=/ehr/patients/7e069e5b-aad9-a17d-d819-e318d4421d52/referrals" rel="noopener">the live link</a>. If a notice from ngrok appears first, choose &ldquo;Visit Site&rdquo;.</li>
+      <li>Click <b>Sign in as Dana</b>.</li>
+      <li>Under <b>Have Fable do it</b>, leave the specialty as Endocrinology.</li>
+      <li>Optionally type a question, such as &ldquo;Next step in glucose-lowering treatment?&rdquo;</li>
+      <li>Press <b>Run Fable</b>.</li>
+    </ol>
+  </section>
   <section>
     <h2>Team 3</h2>
     <ul class="team">
