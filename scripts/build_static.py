@@ -81,9 +81,12 @@ LANDING = """<!doctype html>
   .eyebrow { font-size:.85rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); }
   h2 { font-size:1.15rem; margin:0 0 10px; }
   .team { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:10px 24px; }
-  .team li { border-top:1px solid var(--line); padding-top:8px; }
+  .team li { display:flex; align-items:center; gap:12px; border-top:1px solid var(--line); padding-top:10px; }
+  .team img { width:64px; height:64px; border-radius:50%; object-fit:cover; flex:none; background:#e9eef2; }
+  .team img.mark { object-fit:contain; padding:12px; background:#f6e3d2; }
   .team b { display:block; }
-  .team span { color:var(--muted); font-size:.95rem; }
+  .team span { display:block; color:var(--muted); font-size:.95rem; }
+  .team a { color:var(--accent); font-size:.9rem; }
   .note { border-top:1px solid var(--line); padding-top:16px; color:var(--muted); font-size:.95rem; }
   .note a { color:var(--accent); }
 </style>
@@ -100,12 +103,12 @@ LANDING = """<!doctype html>
   <section>
     <h2>Team</h2>
     <ul class="team">
-      <li><b>George Kapitan</b><span>Growth and Marketing</span></li>
-      <li><b>Melissa Nguyen</b><span>Solution Design and Branding</span></li>
-      <li><b>Nitchee Tangs, MD</b><span>Clinical Product Strategy</span></li>
-      <li><b>Frank Sheikh</b><span>AI Engineer</span></li>
-      <li><b>Xinyi Shi, MD</b><span>Evaluation</span></li>
-      <li><b>Claude Fable 5.2</b><span>Orchestrator (AI model)</span></li>
+      <li><img src="team/george.jpg" alt="George Kapitan" width="64" height="64"><div><b>George Kapitan</b><span>Growth and Marketing</span><a href="https://www.linkedin.com/in/kapitgeo/" rel="noopener">LinkedIn</a></div></li>
+      <li><img src="team/melissa.jpg" alt="Melissa Nguyen" width="64" height="64"><div><b>Melissa Nguyen</b><span>Solution Design and Branding</span><a href="https://www.linkedin.com/in/melissanguyennyc/" rel="noopener">LinkedIn</a></div></li>
+      <li><img src="team/nitchee.png" alt="Nitchee Tangs, MD" width="64" height="64"><div><b>Nitchee Tangs, MD</b><span>Clinical Product Strategy</span><a href="https://www.linkedin.com/in/nitchakorn/" rel="noopener">LinkedIn</a></div></li>
+      <li><img src="team/frank.jpg" alt="Frank Sheikh" width="64" height="64"><div><b>Frank Sheikh</b><span>AI Engineer</span><a href="https://www.linkedin.com/in/franksheikh/" rel="noopener">LinkedIn</a></div></li>
+      <li><img src="team/xinyi.webp" alt="Xinyi Shi, MD" width="64" height="64"><div><b>Xinyi Shi, MD</b><span>Evaluation</span></div></li>
+      <li><img class="mark" src="team/claude.svg" alt="Claude" width="64" height="64"><div><b>Claude Fable 5.2</b><span>Orchestrator (AI model)</span></div></li>
     </ul>
   </section>
   <p class="note">Hackathon prototype built at the Claude Digital Health Hack. All patients are synthetic (Synthea); no real patient data is used. Office, insurer and specialist actions are simulated, and what you do stays in your own browser. This public demo has no AI model behind it: drafts are labelled templates. Not for clinical use. Code: <a href="https://github.com/nitchakorn/ClaudeDigitalHealthHack">github.com/nitchakorn/ClaudeDigitalHealthHack</a></p>
@@ -120,6 +123,7 @@ def main() -> None:
         shutil.rmtree(SITE)
 
     write(SITE / "index.html", LANDING)
+    shutil.copytree(ROOT / "static" / "team", SITE / "team")
 
     # ---- tracker: same page as the live app, pointed at bundled files ----
     t = (ROOT / "static" / "tracker.html").read_text(encoding="utf-8")
