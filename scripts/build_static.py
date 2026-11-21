@@ -18,6 +18,7 @@ sys.path.insert(0, str(ROOT))
 
 from app import llm  # noqa: E402
 from app.data import CONDITIONS, Chart  # noqa: E402
+from scripts.pitch_section import PITCH_CSS, PITCH_HTML  # noqa: E402
 
 SITE = ROOT / "site"
 chart = Chart()
@@ -66,12 +67,17 @@ LANDING = """<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Referral Tracker</title>
 <style>
-  :root { --bg:#f3f6f8; --panel:#fff; --line:#c9d3dc; --fg:#16263a; --muted:#5a6b7d; --accent:#0b7a75; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#0f171e; --panel:#18232d; --line:#34444f; --fg:#e3ebf2; --muted:#93a4b5; --accent:#56c7c0; color-scheme:dark; } }
+  :root { --bg:#F5F4EE; --panel:#FAF9F5; --line:#DDD8CA; --fg:#1F1E1D; --muted:#66635B; --accent:#B5502E; --brand:#D97757; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#262624; --panel:#30302E; --line:#4A4944; --fg:#FAF9F5; --muted:#B8B5A9; --accent:#E08A6D; --brand:#D97757; color-scheme:dark; } }
   * { box-sizing: border-box; }
   body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.55 system-ui, "Segoe UI", sans-serif; padding:48px 20px; }
   main { max-width:820px; margin:0 auto; display:flex; flex-direction:column; gap:22px; }
-  h1 { font-size:2rem; line-height:1.15; margin:0; }
+  h1 { font-size:2.4rem; line-height:1.1; margin:0; }
+  h1, h2 { font-family: Georgia, "Times New Roman", serif; font-weight:500; letter-spacing:-0.01em; }
+  .event { display:flex; align-items:center; gap:14px; color:inherit; text-decoration:none; }
+  .event img { width:56px; height:56px; border-radius:12px; flex:none; }
+  .event b { display:block; }
+  .event span span { display:block; color:var(--muted); font-size:.92rem; }
   p { margin:0; }
   .lede { color:var(--muted); font-size:1.1rem; max-width:62ch; }
   .cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px; }
@@ -93,7 +99,7 @@ LANDING = """<!doctype html>
 </head>
 <body>
 <main>
-  <p class="eyebrow">Claude Digital Health Hack</p>
+  <a class="event" href="https://claudecommunitynyc.com" rel="noopener"><img src="brand/claude-community-new-york.png" alt="Claude Community New York" width="56" height="56"><span><b>Claude Impact Lab for Digital Health</b><span>with ElevenLabs &middot; Alterra Labs and Claude Community New York</span></span></a>
   <h1>Referral Tracker</h1>
   <p class="lede">Every handoff of a specialist referral writes to one shared record. The patient sees a plain status, each office sees its work queue, and an AI agent drafts the paperwork and flags stalls while people make every decision.</p>
   <div class="cards">
@@ -111,19 +117,41 @@ LANDING = """<!doctype html>
       <li><img class="mark" src="team/claude.svg" alt="Claude" width="64" height="64"><div><b>Claude Fable 5.2</b><span>Orchestrator (AI model)</span></div></li>
     </ul>
   </section>
-  <p class="note">Hackathon prototype built at the Claude Digital Health Hack. All patients are synthetic (Synthea); no real patient data is used. Office, insurer and specialist actions are simulated, and what you do stays in your own browser. This public demo has no AI model behind it: drafts are labelled templates. Not for clinical use. Code: <a href="https://github.com/nitchakorn/ClaudeDigitalHealthHack">github.com/nitchakorn/ClaudeDigitalHealthHack</a></p>
+  <p class="note">Prototype built at the Claude Impact Lab for Digital Health in New York. All patients are synthetic (Synthea); no real patient data is used. Office, insurer and specialist actions are simulated, and what you do stays in your own browser. This public demo has no AI model behind it: drafts are labelled templates. Not for clinical use. Code: <a href="https://github.com/nitchakorn/ClaudeDigitalHealthHack">github.com/nitchakorn/ClaudeDigitalHealthHack</a></p>
 </main>
 </body>
 </html>
 """
 
 
+# Claude's cream, ink and orange, laid over each page's own colour tokens.
+THEME_TRACKER = """
+  :root { --bg:#F5F4EE; --panel:#FAF9F5; --raised:#FFFFFF; --line:#DDD8CA; --line-soft:#E9E5D9; --fg:#1F1E1D; --muted:#66635B;
+          --accent:#B5502E; --accent-fg:#FFFFFF; --sel:#F3E0D5; --ctl:#8A867B; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#262624; --panel:#30302E; --raised:#3A3A37; --line:#4A4944; --line-soft:#3D3C38;
+          --fg:#FAF9F5; --muted:#B8B5A9; --accent:#E08A6D; --accent-fg:#2A1A14; --sel:#4A342B; --ctl:#8C897F; } }
+"""
+THEME_DRAFTER = """
+  :root { --bg:#F5F4EE; --panel:#FAF9F5; --line:#DDD8CA; --fg:#1F1E1D; --muted:#66635B; --accent:#B5502E; --accent-fg:#FFFFFF; --sel:#F3E0D5; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#262624; --panel:#30302E; --line:#4A4944; --fg:#FAF9F5;
+          --muted:#B8B5A9; --accent:#E08A6D; --accent-fg:#2A1A14; --sel:#4A342B; } }
+"""
+
+
+def themed(page: str, theme: str) -> str:
+    i = page.index("</style>")
+    return page[:i] + theme + page[i:]
+
+
 def main() -> None:
     if SITE.exists():
         shutil.rmtree(SITE)
 
-    write(SITE / "index.html", LANDING)
+    landing = replace_once(LANDING, "</style>", PITCH_CSS + "</style>")
+    landing = replace_once(landing, '  <p class="note">', PITCH_HTML + '  <p class="note">')
+    write(SITE / "index.html", landing)
     shutil.copytree(ROOT / "static" / "team", SITE / "team")
+    shutil.copytree(ROOT / "static" / "brand", SITE / "brand")
 
     # ---- tracker: same page as the live app, pointed at bundled files ----
     t = (ROOT / "static" / "tracker.html").read_text(encoding="utf-8")
@@ -135,7 +163,7 @@ def main() -> None:
                      "'Public demo: template drafts, no AI model'")
     t = replace_once(t, "'No API key is set on the server, so this creates a labeled template from chart fields.'",
                      "'This public demo has no AI model, so this creates a labeled template from chart fields.'")
-    write(SITE / "tracker" / "index.html", t)
+    write(SITE / "tracker" / "index.html", themed(t, THEME_TRACKER))
     endo = condition("endo", with_extract=False)
     write(SITE / "tracker" / "data.json", json.dumps({"as_of": chart.today.isoformat(), "condition": endo}, ensure_ascii=False))
     write(SITE / "tracker" / "health.json", json.dumps({"mode": "mock", "model": "", "effort": ""}))
@@ -147,6 +175,7 @@ def main() -> None:
     d = replace_once(d, "'Template only: Claude unavailable in this view'", "'Public demo: template drafts, no AI model'")
     d = replace_once(d, "'[TEMPLATE DRAFT: Claude is unavailable in this view, so this text is not model output]'",
                      "'[TEMPLATE DRAFT: this public demo has no AI model, so this text is not model output]'")
+    d = themed(d, THEME_DRAFTER)
     write(SITE / "drafter" / "index.html",
           '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
           '<meta name="viewport" content="width=device-width, initial-scale=1">\n</head>\n<body>\n' + d + "\n</body>\n</html>\n")
