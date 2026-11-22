@@ -19,6 +19,7 @@ sys.path.insert(0, str(ROOT))
 from app import llm  # noqa: E402
 from app.data import CONDITIONS, Chart  # noqa: E402
 from scripts.pitch_section import PITCH_CSS, PITCH_HTML  # noqa: E402
+from scripts import rubric_page  # noqa: E402
 
 SITE = ROOT / "site"
 chart = Chart()
@@ -110,6 +111,7 @@ LANDING = """<!doctype html>
   <div class="cards">
     <a class="card" href="tracker/"><b>Referral tracker</b>Follow one referral through six stages as the patient, the primary care office and the specialist office. Demo scenario: type 2 diabetes to endocrinology.</a>
     <a class="card" href="drafter/"><b>Referral note drafter</b>Pick a patient and a specialty, see the chart extract a specialist needs, and draft the referral note.</a>
+<!--eval-card-->
   </div>
   <section class="live">
     <h2>Live AI demo, by arrangement</h2>
@@ -133,7 +135,7 @@ LANDING = """<!doctype html>
       <li><img class="mark" src="team/claude.svg" alt="Claude" width="64" height="64"><div><b>Claude Fable 5.2</b><span>Orchestrator (AI model)</span></div></li>
     </ul>
   </section>
-  <p class="note">Prototype built at the Claude Impact Lab for Digital Health in New York. All patients are synthetic (Synthea); no real patient data is used. Office, insurer and specialist actions are simulated, and what you do stays in your own browser. This public demo has no AI model behind it: drafts are labelled templates. Not for clinical use. Code: <a href="https://github.com/nitchakorn/ClaudeDigitalHealthHack">github.com/nitchakorn/ClaudeDigitalHealthHack</a></p>
+  <p class="note">Prototype built at the Claude Impact Lab for Digital Health in New York. All patients are synthetic (Synthea); no real patient data is used. Office, insurer and specialist actions are simulated, and what you do stays in your own browser. This public demo has no AI model behind it: drafts are labelled templates. Not for clinical use. Code: <a href="https://github.com/nitchakorn/ClaudeDigitalHealthHack">github.com/nitchakorn/ClaudeDigitalHealthHack</a>. Website made by <a href="https://nitchakorn.com" rel="noopener">Nitchee Tangs</a>.</p>
 </main>
 </body>
 </html>
@@ -159,11 +161,23 @@ def themed(page: str, theme: str) -> str:
     return page[:i] + theme + page[i:]
 
 
+# The evaluation report is a page built by eval/build_report.py from the eval run's records
+# (run that first to refresh it). When the file is absent the site is built without it.
+EVAL_REPORT = ROOT / "eval" / "report" / "index.html"
+EVAL_CARD = ('    <a class="card" href="eval/"><b>Note drafter evaluation</b>Three Claude models write the notes, three judge them '
+             'against a rubric, and a program checks the format. The method, and what the pilot run found.</a>\n')
+
+RUBRIC = ROOT / "docs" / "referral-note-eval.md"
+RUBRIC_CARD = ('    <a class="card" href="eval/rubric/"><b>Evaluation rubric</b>The draft rules for judging a note: seven critical failures, '
+               'eight scored criteria, what each specialist needs, and the pass bar. Clinicians are still editing it.</a>\n')
+
+
 def main() -> None:
     if SITE.exists():
         shutil.rmtree(SITE)
 
     landing = replace_once(LANDING, "</style>", PITCH_CSS + "</style>")
+    landing = replace_once(landing, "<!--eval-card-->\n", (EVAL_CARD if EVAL_REPORT.exists() else "") + RUBRIC_CARD)
     landing = replace_once(landing, '  <p class="note">', PITCH_HTML + '  <p class="note">')
     write(SITE / "index.html", landing)
     shutil.copytree(ROOT / "static" / "team", SITE / "team")
@@ -199,6 +213,18 @@ def main() -> None:
         "system": llm.SYSTEM, "questions_system": llm.QUESTIONS_SYSTEM, "revise_task": llm.REVISE_TASK,
         "as_of": chart.today.isoformat(), "conditions": [condition(k, with_extract=True) for k in CONDITIONS],
     }, ensure_ascii=False))
+
+    # ---- evaluation report: the standalone page, wrapped as a full document ----
+    if EVAL_REPORT.exists():
+        e = EVAL_REPORT.read_text(encoding="utf-8")
+        e = replace_once(e, "<!--site:nav-->", '<a class="back" href="../">&larr; Referral Tracker</a> &nbsp;&middot;&nbsp; <a class="back" href="rubric/">Rubric</a>')
+        e = replace_once(e, "</main>", '<p class="note">' + rubric_page.MADE_BY + "</p>\n</main>")
+        write(SITE / "eval" / "index.html",
+              '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+              '<meta name="viewport" content="width=device-width, initial-scale=1">\n</head>\n<body>\n' + e + "\n</body>\n</html>\n")
+
+    # ---- evaluation rubric: the team's shared document, rendered from its markdown export ----
+    write(SITE / "eval" / "rubric" / "index.html", rubric_page.build(RUBRIC.read_text(encoding="utf-8")))
 
     size = sum(f.stat().st_size for f in SITE.rglob("*") if f.is_file())
     print(f"built {SITE} ({size / 1024:.0f} KB, {sum(1 for f in SITE.rglob('*') if f.is_file())} files)")
